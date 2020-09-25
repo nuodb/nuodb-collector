@@ -4,3 +4,4 @@ pynuodb >= 2.5.1
 pynuoadmin >= 2.0.0
 Flask >= 1.1.2
 six >= 1.14.0
+pytest-pylint==0.14.1

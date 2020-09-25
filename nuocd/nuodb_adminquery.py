@@ -1,16 +1,18 @@
 #!/usr/bin/python
-from six import *
+import importlib
 import optparse
+import os
 import re
-from pynuoadmin import nuodb_mgmt
-import subprocess
 import socket
-import sys, time
+import subprocess
+import sys
+import time
 import traceback
 from datetime import datetime
-import importlib
-import os
-import fileinput
+
+from pynuoadmin import nuodb_mgmt
+from six import print_
+
 
 def get_admin_conn(pid):
     """ searches for NUOCMD_ variables in nuoadmin or nuodocker then overrides whatever is set from
@@ -24,22 +26,22 @@ def get_admin_conn(pid):
             # starting with 4.1 you can no longer getenv from nuodb process.  So look at parent
             # process. docker.py
             ppid = None
-            with open('/proc/%s/status' % (pid,) , 'r') as e:
+            with open('/proc/%s/status' % (pid,), 'r') as e:
                 for l in e:
-                    k,v = l[:-1].split(":\t")
+                    k, v = l[:-1].split(":\t")
                     if k == "PPid":
                         ppid = v
                         break
             if ppid is None:
                 raise "Unable to determine ppid for %s" % (pid)
-            with open('/proc/%s/environ' % (ppid,) ,'r') as e:
+            with open('/proc/%s/environ' % (ppid,), 'r') as e:
                 x = e.read()
-                env = dict([ tuple(y.split('=',1)) for y in x.split('\0') if '=' in y and y.startswith('NUOCMD_')])
+                env = dict([tuple(y.split('=', 1)) for y in x.split('\0') if '=' in y and y.startswith('NUOCMD_')])
             ROOT = '/proc/%s/root' % (pid,)
         except IOError:
             pass
-        
-        api_server = env.get('NUOCMD_API_SERVER' , os.environ.get('NUOCMD_API_SERVER'))
+
+        api_server = env.get('NUOCMD_API_SERVER', os.environ.get('NUOCMD_API_SERVER'))
         if api_server is None:
             # look in /etc/nuodb/nuoadmin.conf to see if ssl is enabled.
             pass
@@ -63,7 +65,7 @@ def get_admin_conn(pid):
             # this assumes set to a path. It could be set to True in which case we need
             # to return the default path
 
-            server_cert = env.get('NUOCMD_VERIFY_SERVER',os.environ.get('NUOCMD_VERIFY_SERVER',False))
+            server_cert = env.get('NUOCMD_VERIFY_SERVER', os.environ.get('NUOCMD_VERIFY_SERVER', False))
             if server_cert and server_cert != True:
                 server_cert = ROOT + server_cert
         else:
@@ -71,28 +73,28 @@ def get_admin_conn(pid):
             server_cert = None
 
         nuodb_mgmt.disable_ssl_warnings()
-        admin_conn = nuodb_mgmt.AdminConnection(api_server, client_key=client_key,verify=server_cert)
+        admin_conn = nuodb_mgmt.AdminConnection(api_server, client_key=client_key, verify=server_cert)
     except Exception as x:
-        print_("Exception: %s" % x,file=sys.stderr)
+        print_("Exception: %s" % x, file=sys.stderr)
     finally:
         return admin_conn
-    
+
 
 parser = optparse.OptionParser(usage="%prog [options] module [-- <module args>]")
 parser.add_option('-k',
                   '--client-key',
                   dest='client_key',
-                  default=os.getenv('NUOCMD_CLIENT_KEY','/etc/nuodb/keys/nuocmd.pem'),
+                  default=os.getenv('NUOCMD_CLIENT_KEY', '/etc/nuodb/keys/nuocmd.pem'),
                   help='PEM file containing client key to verify with admin')
 parser.add_option('-a',
                   '--api-server',
                   dest='api_server',
-                  default=os.getenv('NUOCMD_API_SERVER','https://localhost:8888'),
+                  default=os.getenv('NUOCMD_API_SERVER', 'https://localhost:8888'),
                   help='ADMIN url defaults to $NUOCMD_API_SERVER if set')
 parser.add_option('-v',
                   '--verify-server',
                   dest='verify_server',
-                  default=os.getenv('NUOCMD_VERIFY_SERVER','/etc/nuodb/keys/ca.cert'),
+                  default=os.getenv('NUOCMD_VERIFY_SERVER', '/etc/nuodb/keys/ca.cert'),
                   help='trusted certificate used to verify the server when using HTTPS.')
 parser.add_option('-n',
                   '--hostname',
@@ -124,23 +126,22 @@ nuodb_mgmt.disable_ssl_warnings()
 running_local_processes = {}
 while True:
     pids = None
-    latency=datetime.now()
+    latency = datetime.now()
     try:
         # only interested in nuodb process on localhost, and don't
         # want to make nuoadmin rest call unless a new process is discovered.
-        _processes = subprocess.check_output(["pidof", "nuodb" ])
+        _processes = subprocess.check_output(["pidof", "nuodb"])
         pids = _processes[:-1].split()
 
         # check if found processes are already known or new
         for pid in pids:
             if pid not in running_local_processes:
-                filter_by = dict(hostname=options.hostname,pid=str(pid))
+                filter_by = dict(hostname=options.hostname, pid=str(pid))
                 conn = get_admin_conn(pid)
                 ps = conn.get_processes(**filter_by)
                 if ps:
                     local_process = ps[0]
-                    running_local_processes[pid] = Monitor(local_process,conn, True, module_args)
-
+                    running_local_processes[pid] = Monitor(local_process, conn, True, module_args)
 
         # check if any known processes are no longer available
         for key in list(running_local_processes):
@@ -148,7 +149,7 @@ while True:
                 del running_local_processes[key]
 
         # for each nuodb process, execute query
-        for key,monitor in list(running_local_processes.items()):
+        for key, monitor in list(running_local_processes.items()):
             try:
                 sys.stdout.flush()
                 monitor.execute_query()
@@ -157,19 +158,19 @@ while True:
             except:
                 del running_local_processes[key]
     except subprocess.CalledProcessError:
-        print_('nuodb not running',file=sys.stderr)
+        print_('nuodb not running', file=sys.stderr)
         pass
     except KeyboardInterrupt:
         for key in list(running_local_processes):
             del running_local_processes[key]
         raise
     except:
-        print_('unknown exception',file=sys.stderr)
+        print_('unknown exception', file=sys.stderr)
         traceback.print_exc()
     finally:
         sys.stdout.flush()
         sys.stderr.flush()
-        _sleep = options.interval-(datetime.now()-latency).total_seconds()
+        _sleep = options.interval - (datetime.now() - latency).total_seconds()
         try:
             # this might not work in Python3 but, does then most of this
             # code does not work in Python3
