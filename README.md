@@ -1,4 +1,8 @@
+<img src="images/nuodb.svg" width="200" height="200" /> 
+
 # NuoDB Collector Daemon
+
+[![Build Status](https://travis-ci.com/nuodb/nuodb-collector.svg?token=nYo6yHzhBM9syBKXYk7y&branch=master)](https://travis-ci.com/nuodb/nuodb-collector)
 
 The NuoDB collector daemon is the replacement for NuoCA.
 
