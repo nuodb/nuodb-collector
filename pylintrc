@@ -1,0 +1,335 @@
+[MASTER]
+
+# Specify a configuration file.
+#rcfile=
+
+# Python code to execute, usually for sys.path manipulation such as
+# pygtk.require().
+#init-hook=
+
+# Profiled execution.
+profile=no
+
+# Add files or directories to the blacklist. They should be base names, not
+# paths.
+ignore=CVS
+
+# Pickle collected data for later comparisons.
+persistent=yes
+
+# List of plugins (as comma separated values of python modules names) to load,
+# usually to register additional checkers.
+load-plugins=
+#pylint.extensions.docparams
+
+
+[MESSAGES CONTROL]
+
+# Enable the message, report, category or checker with the given id(s). You can
+# either give multiple identifier separated by comma (,) or put this option
+# multiple time. See also the "--disable" option for examples.
+#enable=
+
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifiers separated by comma (,) or put this
+# option multiple times (only on the command line, not in the configuration
+# file where it should appear only once).You can also use "--disable=all" to
+# disable everything first and then reenable specific checks. For example, if
+# you want to run only the similarities checker, you can use "--disable=all
+# --enable=similarities". If you want to run only the classes checker, but have
+# no Warning level messages displayed, use"--disable=all --enable=classes
+# --disable=W"
+#
+# Disabled warnings (remove from this list when enabled):
+# W0101: Unreachable code
+# W0104: Statement seems to have no effect
+# W0105: String statement has no effect
+# W0106: Expression "%s" is assigned to nothing
+# W0107: Unnecessary pass statement
+# W0108: Lambda may not be necessary
+# W0109: Duplicate key %r in dictionary
+# W0110: map/filter on lambda could be replaced by comprehension
+# W0120: Else clause on loop without a break statement
+# W0121: Use raise ErrorClass(args) instead of raise ErrorClass, args.
+# W0122: Use of the exec statement
+# W0141: Used builtin function %r
+# W0142: Used * or ** magic
+# W0150: %s statement in finally block may swallow exception
+# W0199: Assert called on a 2-uple. Did you mean \'assert x,y\'?
+# W0201: Attribute %r defined outside __init__
+# W0211: Static method with %r as first argument
+# W0212: Access to a protected member %s of a client class
+# W0221: Arguments number differs from %s method
+# W0222: Signature differs from %s method
+# W0223: Method %r is abstract in class %r but is not overridden
+# W0231: __init__ method from base class %r is not called
+# W0232: Class has no __init__ method
+# W0233: __init__ method from a non direct base class %r is called
+# W0234: iter returns non-iterator
+# W0301: Unnecessary semicolon
+# W0331: Use of the <> operator
+# W0332: Use l as long integer identifier
+# W0333: Use of the `` operator
+# W0401: Wildcard import %s
+# W0402: Uses of a deprecated module %r
+# W0403: Relative import %r
+# W0404: Reimport %r (imported line %s)
+# W0406: Module import itself
+# W0410: __future__ import is not the first non docstring statement
+# W0511 (warning notes in code comments)
+# W0512: Cannot decode using encoding "%s", unexpected byte at position %d
+# W0601: Global variable %r undefined at the module level
+# W0602: Using global for %r but no assigment is done
+# W0603: Using the global statement
+# W0604: Using the global statement at the module level
+# W0611: Unused import %s
+# W0612: Unused variable %r
+# W0613: Unused argument %r
+# W0614: Unused import %s from wildcard import
+# W0621: Redefining name %r from outer scope (line %s)
+# W0622: Redefining built-in %r
+# W0623: Redefining name %r from %s in exception handler
+# W0631: Using possibly undefined loop variable %r
+# W0632: Possible unbalanced tuple unpacking with sequence%s:
+# W0633: Attempting to unpack a non-sequence%s
+# W0701: Raising a string exception
+# W0702: No exception type(s) specified
+# W0703: Catch "Exception"
+# W0704: Except doesn't do anything
+# W0710: Exception doesn't inherit from standard "Exception" class
+# W0711: Exception to catch is the result of a binary "%s" operation
+# W0712: Implicit unpacking of exceptions is not supported in Python 3
+# W1001: Use of "property" on an old style class
+# W1111: Assigning to function call which only returns None
+# W1201: Specify string format arguments as logging function parameters
+# W1300: Format string dictionary key should be a string, not %s
+# W1301: Unused key %r in format string dictionary
+# W1401: Anomalous backslash in string: \'%s\'. String constant might be missing an r prefix.
+# W1402: Anomalous Unicode escape in byte string: \'%s\'. String constant might be missing an r or u prefix.
+# W1501: "%s" is not a valid mode for open.
+
+disable=C, R,W0101,W0104,W0105,W0106,W0107,W0108,W0109, W0110, W0120, W0121, W0122, W0141, W0142, W0150, W0199, W0201, W0211, W0212, W0221, W0222, W0223, W0231, W0232, W0233, W0234, W0301, W0331, W0332, W0333, W0401, W0402, W0403, W0404, W0406, W0410, W0511, W0512, W0601, W0602, W0603, W0604, W0611, W0612, W0613, W0614, W0621, W0622, W0623, W0631, W0632, W0633, W0701, W0702, W0703, W0704, W0710, W0711, W0712, W1001, W1111, W1201, W1300, W1301, W1401, W1402, W1501
+
+
+[REPORTS]
+
+# Set the output format. Available formats are text, parseable, colorized, msvs
+# (visual studio) and html. You can also give a reporter class, eg
+# mypackage.mymodule.MyReporterClass.
+# output-format=parseable
+msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+
+# Include message's id in output
+include-ids=no
+
+# Include symbolic ids of messages in output
+symbols=no
+
+# Put messages in a separate file for each module / package specified on the
+# command line instead of printing them on stdout. Reports (if any) will be
+# written in a file name "pylint_global.[txt|html]".
+files-output=no
+
+# Tells whether to display a full report or only the messages
+reports=no
+
+# Python expression which should return a note less than 10 (10 is the highest
+# note). You have access to the variables errors warning, statement which
+# respectively contain the number of errors / warnings messages and the total
+# number of statements analyzed. This is used by the global evaluation report
+# (RP0004).
+evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+
+# Add a comment according to your evaluation note. This is used by the global
+# evaluation report (RP0004).
+comment=no
+
+
+[BASIC]
+
+# Required attributes for module, separated by a comma
+required-attributes=
+
+# List of builtins function names that should not be used, separated by a comma
+bad-functions=apply,input
+
+# Regular expression which should only match correct module names
+module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+
+# Regular expression which should only match correct module level names
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+
+# Regular expression which should only match correct class names
+class-rgx=[A-Z_][a-zA-Z0-9]+$
+
+# Regular expression which should only match correct function names
+function-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression which should only match correct method names
+method-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression which should only match correct instance attribute names
+attr-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression which should only match correct argument names
+argument-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression which should only match correct variable names
+variable-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression which should only match correct list comprehension /
+# generator expression variable names
+inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,ex,Run,_
+
+# Bad variable names which should always be refused, separated by a comma
+bad-names=foo,bar,baz,toto,tutu,tata
+
+# Regular expression which should only match functions or classes name which do
+# not require a docstring
+no-docstring-rgx=__.*__
+
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+max-line-length=80
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+# tab).
+indent-string='    '
+
+
+[MISCELLANEOUS]
+
+# List of note tags to take in consideration, separated by a comma.
+notes=FIXME,XXX,TODO
+
+
+[SIMILARITIES]
+
+# Minimum lines number of a similarity.
+min-similarity-lines=4
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities.
+ignore-imports=no
+
+
+[TYPECHECK]
+
+# Tells whether missing members accessed in mixin class should be ignored. A
+# mixin class is detected if its name ends with "mixin" (case insensitive).
+ignore-mixin-members=yes
+
+# List of classes names for which member attributes should not be checked
+# (useful for classes with attributes dynamically set).
+ignored-classes=SQLObject,LookupDict,pytest
+
+# When zope mode is activated, add a predefined set of Zope acquired attributes
+# to generated-members.
+zope=no
+
+# List of members which are set dynamically and missed by pylint inference
+# system, and so shouldn't trigger E0201 when accessed. Python regular
+# expressions are accepted.
+generated-members=REQUEST,acl_users,aq_parent
+
+
+[VARIABLES]
+
+# Tells whether we should check for unused import in __init__ files.
+init-import=no
+
+# A regular expression matching the beginning of the name of dummy variables
+# (i.e. not used).
+dummy-variables-rgx=_|dummy
+
+# List of additional names supposed to be defined in builtins. Remember that
+# you should avoid to define new builtins when possible.
+additional-builtins=
+
+
+[CLASSES]
+
+# List of interface methods to ignore, separated by a comma. This is used for
+# instance to not check methods defines in Zope's Interface base class.
+ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+
+# List of method names used to declare (i.e. assign) instance attributes.
+defining-attr-methods=__init__,__new__,setUp
+
+# List of valid names for the first argument in a class method.
+valid-classmethod-first-arg=cls
+
+# List of valid names for the first argument in a metaclass class method.
+valid-metaclass-classmethod-first-arg=mcs
+
+
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=5
+
+# Argument names that match this expression will be ignored. Default to name
+# with leading underscore
+ignored-argument-names=_.*
+
+# Maximum number of locals for function / method body
+max-locals=15
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of branch for function / method body
+max-branchs=12
+
+# Maximum number of statements in function / method body
+max-statements=50
+
+# Maximum number of parents for a class (see R0901).
+max-parents=7
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=7
+
+# Minimum number of public methods for a class (see R0903).
+min-public-methods=2
+
+# Maximum number of public methods for a class (see R0904).
+max-public-methods=20
+
+
+[IMPORTS]
+
+# Deprecated modules which should not be used, separated by a comma
+deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+
+# Create a graph of every (i.e. internal and external) dependencies in the
+# given file (report RP0402 must not be disabled)
+import-graph=
+
+# Create a graph of external dependencies in the given file (report RP0402 must
+# not be disabled)
+ext-import-graph=
+
+# Create a graph of internal dependencies in the given file (report RP0402 must
+# not be disabled)
+int-import-graph=
+
+
+[EXCEPTIONS]
+
+# Exceptions that will emit a warning when being caught. Defaults to
+# "Exception"
+overgeneral-exceptions=Exception

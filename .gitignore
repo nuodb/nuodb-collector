@@ -146,4 +146,4 @@ lib
 **/*.tgz
 **/Chart.lock
 
-
+.idea/*
