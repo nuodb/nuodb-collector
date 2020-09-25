@@ -14,15 +14,12 @@ RUN pip install --no-cache-dir -r requirements.txt && \
     apt-get -y install telegraf && \
     apt-get clean
 
-
 RUN chmod g+w /etc
 COPY --chown=telegraf:0 conf/telegraf.conf  /etc/telegraf/telegraf.conf
 COPY --chown=telegraf:0 conf/nuodb.conf     /etc/telegraf/telegraf.d/nuodb.conf
 COPY --chown=telegraf:0 conf/outputs.conf   /etc/telegraf/telegraf.d/outputs.conf
 
-
 USER 1000:0
 
 CMD ["telegraf", "--config", "/etc/telegraf/telegraf.conf", "--config-directory", "/etc/telegraf/telegraf.d"]
-#CMD ["/opt/nuocd/docker-entrypoint.sh"]
 
