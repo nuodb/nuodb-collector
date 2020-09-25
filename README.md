@@ -103,3 +103,4 @@ If not starting telegraf via systemd then the variables set in
 can start telegraf with the following command:
 
 sh -c "$(cat /etc/default/telegraf | tr '\n' ' ') telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d"
+
