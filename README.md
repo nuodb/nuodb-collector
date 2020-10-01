@@ -11,9 +11,9 @@ The NuoDB collector daemon is the replacement for NuoCA.
 Most modern application monitoring systems consist of the following 3
 core components:
 
-. Collector             — daemon(s) to gather metrics
-. Time Series database  — for storage of real-time, high volume metrics
-. Query & Visualization — that enables queries and display charts to
+* Collector             — daemon(s) to gather metrics
+* Time Series database  — for storage of real-time, high volume metrics
+* Query & Visualization — that enables queries and display charts to
                           understand metrics
 
 This docker image is a Collector daemon utilizing a popular collector -
