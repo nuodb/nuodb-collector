@@ -6,9 +6,18 @@ python:
 services:
     - docker
 
+before_install:
+    - chmod +x ./tests/ci/install_environment.sh
+    - ./tests/ci/install_environment.sh
+
 install:
-    - pip install -r requirements.txt
+    - chmod +x ./tests/ci/install_nuocd.sh
+    - ./tests/ci/install_nuocd.sh
+
+before_script:
+    - sleep 120
 
 script:
-    - pylint ./nuocd
+    - pip install -r test_requirements.txt
+    - python ./run_tests.py
     - echo "Done"
