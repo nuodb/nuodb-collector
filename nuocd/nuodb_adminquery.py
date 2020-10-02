@@ -99,7 +99,7 @@ parser.add_option('-v',
 parser.add_option('-n',
                   '--hostname',
                   dest='hostname',
-                  default=socket.gethostname(),
+                  default=os.getenv('NUOCD_HOSTNAME', socket.gethostname()),
                   help='name of this host, as known by admin layer.')
 parser.add_option('-i',
                   '--interval',
@@ -155,7 +155,8 @@ while True:
                 monitor.execute_query()
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception as e:
+                print_(e, file=sys.stderr)
                 del running_local_processes[key]
     except subprocess.CalledProcessError:
         print_('nuodb not running', file=sys.stderr)
