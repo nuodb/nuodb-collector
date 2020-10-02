@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  nuoadmin1:
+    image: nuodb/nuodb-ce:latest
+    environment:
+      NUODB_DOMAIN_ENTRYPOINT: nuoadmin1
+    hostname: nuoadmin1
+    command: ["nuoadmin"]
+  sm:
+    image: nuodb/nuodb-ce:latest
+    depends_on: 
+    - nuoadmin1
+    command: ["nuodocker", "--api-server", "nuoadmin1:8888", "start", "sm", "--db-name", "hockey", "--server-id", "nuoadmin1", "--dba-user", "dba", "--dba-password", "goalie"]
+  te:
+    image: nuodb/nuodb-ce:latest
+    depends_on: 
+    - nuoadmin1
+    command: ["nuodocker", "--api-server", "nuoadmin1:8888", "start", "te", "--db-name", "hockey", "--server-id", "nuoadmin1"]
+  influxdb:
+    image: influxdb:latest
+  nuocd:
+    build: .
+    depends_on:
+    - nuoadmin1
+    - sm
+    - te
+    - influxdb
+    environment:
+    - INFLUXURL=http://influxdb:8086
+    - NUOCMD_API_SERVER=http://nuoadmin1:8888
+    pid: 'service:te'

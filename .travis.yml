@@ -19,5 +19,5 @@ before_script:
 
 script:
     - pip install -r test_requirements.txt
-    - python ./run_tests.py
+    - python ./run_tests.y
     - echo "Done"
