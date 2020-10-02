@@ -8,20 +8,17 @@ services:
 
 jobs:
   include:
-      - stage: Bare Metal
-        before_install:
+      - stage: Test
+        install:
             - chmod +x ./tests/ci/install_environment.sh
             - ./tests/ci/install_environment.sh
-        install:
             - chmod +x ./tests/ci/install_nuocd.sh
             - ./tests/ci/install_nuocd.sh
-        before_script:
-            - sleep 120
-      - stage: Docker
         install:
             - docker-compose up&
-        before_script:
-            - sleep 120
+
+before_script:
+    - sleep 120
 
 script:
     - pip install -r test_requirements.txt
