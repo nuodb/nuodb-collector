@@ -23,4 +23,5 @@ echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stabl
 
 sudo apt-get update && sudo apt-get install telegraf
 
+nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300
 nuocmd show domain

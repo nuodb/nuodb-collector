@@ -12,8 +12,3 @@ sudo systemctl daemon-reload
 sudo systemctl stop telegraf
 
 /usr/bin/telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d&
-
-export PATH=$PATH:/opt/nuodb/bin
-nuocmd show domain
-ps -ef | grep nuo
-ps -ef | grep tele
