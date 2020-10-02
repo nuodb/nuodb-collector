@@ -5,10 +5,13 @@ docker pull nuodb/nuodb-ce:latest
 
 docker-compose up&
 
+sleep 30
+
 n=1
 while [ $n -le 30 ]
 do
-  if [[ $(docker container ls -f name=nuodb-collector_nuoadmin1_1 -q) ]]; then
+  admin_container_id=$(docker container ls -f name=nuoadmin -q)
+  if [[ $admin_container_id ]]; then
     sleep 10
     n=$(( n+1 ))
   else
@@ -16,6 +19,4 @@ do
   fi
 done
 
-sleep 120
-
-docker exec nuodb-collector_nuoadmin1_1 nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300
+docker exec "$admin_container_id" nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300
