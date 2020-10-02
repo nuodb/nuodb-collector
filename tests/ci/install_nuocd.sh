@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 export INFLUXURL=http://localhost:8086
 export NUOCMD_API_SERVER=http://localhost:8888
 
