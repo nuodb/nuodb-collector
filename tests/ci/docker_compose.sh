@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
-docker build .
 docker pull nuodb/nuodb-ce:latest
 
 docker-compose up&
 
-sleep 30
+sleep 120
 
 n=1
 while [ $n -le 30 ]
