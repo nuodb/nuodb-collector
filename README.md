@@ -76,7 +76,7 @@ python get-pip.py
 
 ### Download python requirements
 ```
-pip install -r requirements.txt -t /opt/nuocd/pylib
+pip install -r requirements.txt
 ```
 
 ### Configure telegraf
