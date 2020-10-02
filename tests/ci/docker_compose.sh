@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+docker build .
+docker pull nuodb/nuodb-ce:latest
+
 docker-compose up&
 
 n=1
