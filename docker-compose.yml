@@ -6,12 +6,7 @@ services:
       NUODB_DOMAIN_ENTRYPOINT: nuoadmin1
       NUOCMD_API_SERVER: http://nuoadmin1:8888
     hostname: nuoadmin1
-    command:
-      - /bin/bash
-      - -c
-      - |
-        sed -i 's/"ssl": *"true"/"ssl": "false"/' /etc/nuodb/nuoadmin.conf.template
-        nuoadmin
+    command: ["nuoadmin", "--", "ssl=false"]
   sm:
     image: nuodb/nuodb-ce:latest
     hostname: sm
