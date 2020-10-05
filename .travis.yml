@@ -6,13 +6,12 @@ python:
 services:
     - docker
 
-before_install:
-    - chmod +x ./tests/ci/install_environment.sh
-    - ./tests/ci/install_environment.sh
+env:
+  - TEST_SUITE="Bare Metal"
+  - TEST_SUITE="Docker"
 
 install:
-    - chmod +x ./tests/ci/install_nuocd.sh
-    - ./tests/ci/install_nuocd.sh
+    - ./tests/ci/determine_and_run_tests.sh
 
 before_script:
     - sleep 120
@@ -21,3 +20,4 @@ script:
     - pip install -r test_requirements.txt
     - python ./run_tests.py
     - echo "Done"
+

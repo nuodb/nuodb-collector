@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 export NUOVERSION=4.0.7.1
 export INFLUX_VERSION=1.4.3
 
