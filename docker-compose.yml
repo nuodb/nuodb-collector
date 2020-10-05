@@ -1,14 +1,14 @@
 version: "3.7"
 services:
   nuoadmin1:
-    image: nuodb/nuodb-ce:latest
+    image: $DOCKER_IMAGE
     environment:
       NUODB_DOMAIN_ENTRYPOINT: nuoadmin1
       NUOCMD_API_SERVER: http://nuoadmin1:8888
     hostname: nuoadmin1
     command: ["nuoadmin", "--", "ssl=false"]
   sm:
-    image: nuodb/nuodb-ce:latest
+    image: $DOCKER_IMAGE
     hostname: sm
     environment:
       NUOCMD_API_SERVER: http://nuoadmin1:8888
@@ -16,7 +16,7 @@ services:
     - nuoadmin1
     command: ["nuodocker", "start", "sm", "--db-name", "hockey", "--server-id", "nuoadmin1", "--dba-user", "dba", "--dba-password", "goalie"]
   te:
-    image: nuodb/nuodb-ce:latest
+    image: $DOCKER_IMAGE
     hostname: te
     environment:
       NUOCMD_API_SERVER: http://nuoadmin1:8888

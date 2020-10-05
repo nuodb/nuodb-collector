@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-docker pull nuodb/nuodb-ce:latest
+export NUOVERSION=4.0.7
+export DOCKER_IMAGE=nuodb/nuodb-ce:$NUOVERSION
+
+docker pull DOCKER_IMAGE
 
 docker-compose up&
 
