@@ -19,15 +19,18 @@ def summary(values):
     activeTime = get("ActiveTime")
     deltaTime = get("Milliseconds")
     idleTime = get("IdleTime")
-
+    numCores = get("NumberCores")
+    
     def v(raw):
         rvalues = "raw=%d" % (raw)
         if deltaTime > 0:
-            rvalues += ",nthreads=%d" % (int(round(raw / deltaTime)))
-            if activeTime > 0:
-                multiplier = (deltaTime - idleTime) * 1. / deltaTime
-                rvalues += ",percent=%d" % (int(round(multiplier * raw * 100. / activeTime)))
-                return rvalues
+            # value is raw relative to wallclock time.
+            value = raw / deltaTime
+            rvalues += ",value=%f" % ( value )
+            if numCores > 0:
+                nvalue = value / numCores
+                rvalues += ",normvalue=%f" % (nvalue)
+        return rvalues
 
     cpuTime = get("UserMilliseconds") + get("KernelMilliseconds")
     syncTime = get("SyncPointWaitTime") + get("StallPointWaitTime")
