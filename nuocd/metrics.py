@@ -143,7 +143,7 @@ class Monitor:
         self._process = nuodb_process
         self._fullstate = None
         self._items = None
-        self._interval = 1
+        #self._interval = 1
         self.__session = nuodb_mgmt._monitor_process(self._process.address, self._dbkey)
 
     def execute_query(self):
@@ -161,17 +161,23 @@ class Monitor:
             xml_msg = next(self.__session)
 
         if xml_msg.tag == 'Status':
-            self._interval = 10
+            #self._interval = 10
             statuses = dict([(k, value(v)) for k, v in xml_msg.attrib.items()])
+            if 'Time' in statuses:
+                # Time added to Status in 4.1.1
+                statuses['TimeStamp'] = int(statuses['Time'])
+            else:
+                statuses['TimeStamp'] = int(round(time.time() * 1000))
+
             if self._fullstate is None:
                 statuses['Database'] = self._process.db_name
                 statuses['Region'] = self._process.region_name
+                statuses['StartId'] = self._process.start_id
                 self._fullstate = statuses
             else:
                 self._fullstate.update(statuses)
-            self._fullstate['TimeStamp'] = int(round(time.time() * 1000))
-            outputdata = self.format(self._fullstate)
-            self.send(outputdata)
+                outputdata = self.format(self._fullstate)
+                self.send(outputdata)
 
     def send(self, lines):
         for line in lines:
@@ -183,7 +189,7 @@ class Monitor:
         nodetype = values['NodeType']
         hostname = values['Hostname']
         processid = values['ProcessId']
-        startid = self._process.start_id
+        startid = values['StartId']
         nodeid = values['NodeId']
         database = values['Database']
         region = "<unknown>"

@@ -149,6 +149,16 @@ while True:
                 del running_local_processes[key]
 
         # for each nuodb process, execute query
+        #  this is done sequentially.  There are two types of monitors
+        #  - poller, listener
+        #  - poller monitor will query the engine each invocation of execute_query
+        #    - msgtrace, synctrace
+        #  - listener monitor will read next message from keep alive engine connection
+        #    - metric
+        #  if running_local_processes a long wait for engine response will delay request or read
+        #  of subsequent monitors.
+        #
+        # should this be done in parallel?
         for key, monitor in list(running_local_processes.items()):
             try:
                 sys.stdout.flush()
@@ -158,6 +168,7 @@ while True:
             except Exception as e:
                 print_(e, file=sys.stderr)
                 del running_local_processes[key]
+
     except subprocess.CalledProcessError:
         print_('nuodb not running', file=sys.stderr)
         pass
