@@ -104,25 +104,73 @@ docker build .
 docker tag <SHA> <TAG>
 ```
 
-### Running the docker image
+### Running Prerequisites
 As a prerequisite you must have a running NuoDB domain.
 To start NuoDB in Docker, follow the [NuoDB Docker Blog Part I](https://nuodb.com/blog/deploy-nuodb-database-docker-containers-part-i).
 
-To verify your domain, run `nuocmd` as such:
+To verify your domain, run `nuocmd`:
 ```
-docker exec ....
+$ docker exec -it nuoadmin1 nuocmd show domain
+server version: 4.1.1-3-2203dab8dd, server license: Community
+server time: 2020-10-20T19:20:35.915, client token: 2003aa06ce0444b2152b543beff9e95312b47e84
+Servers:
+  [nuoadmin1] nuoadmin1:48005 [last_ack = 1.02] [member = ADDED] [raft_state = ACTIVE] (LEADER, Leader=nuoadmin1, log=0/19/19) Connected *
+  [nuoadmin2] nuoadmin2:48005 [last_ack = 1.02] [member = ADDED] [raft_state = ACTIVE] (FOLLOWER, Leader=nuoadmin1, log=0/18/18) Connected
+  [nuoadmin3] nuoadmin3:48005 [last_ack = 1.01] [member = ADDED] [raft_state = ACTIVE] (FOLLOWER, Leader=nuoadmin1, log=0/19/19) Connected
+Databases:
+  test [state = RUNNING]
+    [SM] test-sm-1/172.20.0.5:48006 [start_id = 0] [server_id = nuoadmin1] [pid = 39] [node_id = 1] [last_ack =  7.14] MONITORED:RUNNING
+    [TE] test-te-1/172.20.0.6:48006 [start_id = 1] [server_id = nuoadmin1] [pid = 39] [node_id = 2] [last_ack =  0.14] MONITORED:RUNNING
 ```
 
+This collector also assumes that an InfluxDB instance is already running.
+If you do not already have InfluxDB running, you can start a simple install like so.
+```
+docker run -d --name influxdb \
+      --network nuodb-net \
+      influxdb:latest
+```
+
+
+### Running NuoDB Collector
 Each NuoDB Collector runs colocated with a NuoDB engine in the same process namespace.
 As such, you must start a NuoDB collector docker container for every running NuoDB engine you want to monitor.
 
-Replace the `<hostinflux>` placeholder with the URL of a running InfluxDB instance.
+The following value replacement must be done to start a NuoDB Collector container:
+- Replace the `<hostinflux>` placeholder with the URL of a running InfluxDB container. In our example, it will be `influxdb`.
+- Replace the `<nuoadmin>` placeholder with the URL of a running NuoDB admin container. In our example, it will be `nuoadmin1`.
+- Replace the `<enginecontainer>` placeholder with the URL of a running NuoDB Engine container. In our example, it will be `test-sm-1`.
+
 ```
 docker run -d --name nuocd-sm \
       --hostname nuocd-sm \
       --network nuodb-net \
-      --env INFLUXURL=<hostinflux>
-      --env NUOCMD_API_SERVER=http://nuoadmin1:8888
+      --env INFLUXURL=http://<hostinflux>:8086
+      --env NUOCMD_API_SERVER=http://<nuoadmin>:8888
+      --pid container:<enginecontainer>
+      docker.pkg.github.com/nuodb/nuodb-collector/nuocd:latest
+```
+
+Repeat the steps above for all running NuoDB engine containers you want to monitor.
+
+The example above assumes that your NuoDB domain is running with `ssl=false`.
+If TLS is enabled in your domain, you must mount your TLS keys into the NuoDB Collector image and change the `NUOCMD_API_SERVER` environment variable to HTTPS.
+```
+    --volume tls-keys-volume:/etc/nuodb/keys/
+    --env NUOCMD_API_SERVER=https://<nuoadmin>:8888
+```
+
+### Docker Example
+For a complete example on how to set up the NuoDB domain with NuoDB collector, you can use `docker compose`.
+The following command will start:
+- 2 Admin Processes
+- 1 Storage Manager
+- 2 Transaction Engines
+- 2 NuoDB Collector containers (1 for SM, 1 for TE)
+- InfluxDB time-series database
+
+```
+DOCKER_IMAGE=nuodb/nuodb-ce:latest docker-compose up -d
 ```
 
 ## Setup in Kubernetes
