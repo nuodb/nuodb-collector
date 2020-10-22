@@ -128,9 +128,10 @@ If you do not already have InfluxDB running, you can start a simple install like
 ```
 docker run -d --name influxdb \
       --network nuodb-net \
+      -p 8086:8086 \
+      -p 8082:8082 \
       influxdb:latest
 ```
-
 
 ### Running NuoDB Collector
 Each NuoDB Collector runs colocated with a NuoDB engine in the same process namespace.
@@ -140,25 +141,19 @@ The following value replacement must be done to start a NuoDB Collector containe
 - Replace the `<hostinflux>` placeholder with the URL of a running InfluxDB container. In our example, it will be `influxdb`.
 - Replace the `<nuoadmin>` placeholder with the URL of a running NuoDB admin container. In our example, it will be `nuoadmin1`.
 - Replace the `<enginecontainer>` placeholder with the URL of a running NuoDB Engine container. In our example, it will be `test-sm-1`.
+- Replace the `<hostname>` with the hostname of the monitored engine container. The hostnames must match. In our example it will be `test-sm-1` 
 
 ```
 docker run -d --name nuocd-sm \
-      --hostname nuocd-sm \
+      --hostname <hostname> \
       --network nuodb-net \
-      --env INFLUXURL=http://<hostinflux>:8086
-      --env NUOCMD_API_SERVER=http://<nuoadmin>:8888
-      --pid container:<enginecontainer>
+      --env INFLUXURL=http://<hostinflux>:8086 \
+      --env NUOCMD_API_SERVER=https://<nuoadmin>:8888 \
+      --pid container:<enginecontainer> \
       docker.pkg.github.com/nuodb/nuodb-collector/nuocd:latest
 ```
 
 Repeat the steps above for all running NuoDB engine containers you want to monitor.
-
-The example above assumes that your NuoDB domain is running with `ssl=false`.
-If TLS is enabled in your domain, you must mount your TLS keys into the NuoDB Collector image and change the `NUOCMD_API_SERVER` environment variable to HTTPS.
-```
-    --volume tls-keys-volume:/etc/nuodb/keys/
-    --env NUOCMD_API_SERVER=https://<nuoadmin>:8888
-```
 
 ### Docker Example
 For a complete example on how to set up the NuoDB domain with NuoDB collector, you can use `docker compose`.
