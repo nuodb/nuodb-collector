@@ -4,7 +4,6 @@ services:
     image: $DOCKER_IMAGE
     environment:
       NUODB_DOMAIN_ENTRYPOINT: nuoadmin1
-      NUOCMD_API_SERVER: http://nuoadmin1:8888
     hostname: nuoadmin1
     command: ["nuoadmin"]
   sm:
