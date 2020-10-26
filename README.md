@@ -196,9 +196,6 @@ cat <<EOF | sudo tee -a /etc/default/telegraf >/dev/null
 INFLUXURL=http://<hostinflux>:8086
 PYTHONPATH=/opt/nuocd/pylib
 EOF
-INFLUXURL=http://<hostinflux>:8086
-PYTHONPATH=/opt/nuocd/pylib
-EOF
 ```
 
 ## Start NuoDB Collector
