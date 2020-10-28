@@ -73,7 +73,7 @@ DOCKER_IMAGE=nuodb/nuodb-ce:latest docker-compose down
 ## Download the NuoDB Collector Docker Image
 
 ```
-docker pull docker.pkg.github.com/nuodb/nuodb-collector/nuocd:latest
+docker pull nuodb/nuodb-collector:latest
 ```
 
 ## Building docker image from source (Optional)
@@ -142,7 +142,7 @@ docker run -d --name nuocd-sm \
       --env INFLUXURL=http://<hostinflux>:8086 \
       --env NUOCMD_API_SERVER=https://<nuoadmin>:8888 \
       --pid container:<enginecontainer> \
-      docker.pkg.github.com/nuodb/nuodb-collector/nuocd:latest
+      nuodb/nuodb-collector:latest
 ```
 
 Repeat the steps above for all running NuoDB engine containers you want to monitor.
