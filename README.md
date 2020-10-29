@@ -2,7 +2,7 @@
 
 # NuoDB Collector
 
-[![Build Status](https://travis-ci.com/nuodb/nuodb-collector.svg?token=nYo6yHzhBM9syBKXYk7y&branch=master)](https://travis-ci.com/nuodb/nuodb-collector)
+[![Build Status](https://travis-ci.org/nuodb/nuodb-collector.svg?branch=master)](https://travis-ci.org/nuodb/nuodb-collector)
 
 The NuoDB Collector (NuoCD - Collector Daemon) is a replacement for [NuoCA](https://github.com/nuodb/nuoca).
 
