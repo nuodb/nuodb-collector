@@ -36,9 +36,8 @@ while True:
     _pids = None
     try:
         # assume only one process by given name
-        _pid = subprocess.check_output(["pidof", process_name])
-        # _pid = subprocess.check_output(["pgrep", process_name ])
-        _pids = _pid[:-1].split()
+        _pid = subprocess.check_output(["pgrep", '^{}$'.format(process_name)])
+        _pids = _pid.split()
     except subprocess.CalledProcessError:
         print_('nuodb not running', file=sys.stderr)
         pass
