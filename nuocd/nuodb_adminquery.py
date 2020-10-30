@@ -130,8 +130,8 @@ while True:
     try:
         # only interested in nuodb process on localhost, and don't
         # want to make nuoadmin rest call unless a new process is discovered.
-        _processes = subprocess.check_output(["pidof", "nuodb"])
-        pids = _processes[:-1].split()
+        _processes = subprocess.check_output(["pgrep", "^nuodb$"])
+        pids = _processes.split()
 
         # check if found processes are already known or new
         for pid in pids:

@@ -155,18 +155,20 @@ NuoDB Helm Chart support for the NuoDB Collector coming soon.
 
 ## Installation
 
+These steps are for RedHat or CentOS. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
+
 ### 1) Install dependencies
 
+NuoDB Collector requires Python 2.7, which comes installed on most distributions.
+
+The instructions below use `pip` to install Python dependencies. `pip` can be installed on RedHat or CentOS as follows:
+
 ```
-pidof
-sysvinit-tools
-python2.7
-pip
+sudo yum install -y epel-release
+sudo yum install -y python-pip
 ```
 
 ### 2) Download and install `telegraf`
-
-These steps are for RedHat or CentOS. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
 
 ```
 wget https://dl.influxdata.com/telegraf/releases/telegraf-1.15.2-1.x86_64.rpm
@@ -176,7 +178,7 @@ sudo yum localinstall telegraf-1.15.2-1.x86_64.rpm
 ### 3) Download and install NuoDB Collector
 
 ```
-git clone git@github.com:nuodb/nuodb-collector.git
+git clone https://github.com/nuodb/nuodb-collector.git
 cd nuodb-collector
 pip install -r requirements.txt
 sudo cp -r nuocd /opt/
@@ -190,9 +192,8 @@ Replace the `<hostinflux>` placeholder with the hostname for a running InfluxDB 
 ```
 sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
 sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
-sudo edit /etc/telegraf/telegraf.conf
 sudo chown -R telegraf.telegraf /etc/telegraf
-cat <<EOF | sudo tee -a /etc/default/telegraf >/dev/null
+cat <<EOF >/etc/default/telegraf
 INFLUXURL=http://<hostinflux>:8086
 PYTHONPATH=/opt/nuocd/pylib
 EOF
