@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 RUN chmod g+w /etc
 COPY --chown=telegraf:0 conf/telegraf.conf  /etc/telegraf/telegraf.conf
-COPY --chown=telegraf:0 conf/nuodb.conf     /etc/telegraf/telegraf.d/nuodb.conf
-COPY --chown=telegraf:0 conf/outputs.conf   /etc/telegraf/telegraf.d/outputs.conf
+COPY --chown=telegraf:0 conf/nuodb.conf     /etc/telegraf/telegraf.d/static/nuodb.conf
+COPY --chown=telegraf:0 conf/outputs.conf   /etc/telegraf/telegraf.d/dynamic/outputs.conf
 
 USER 1000:0
 
