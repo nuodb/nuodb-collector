@@ -46,7 +46,7 @@ This repository contains a Docker Compose file (`docker-compose.yml`) which will
 - 2 Admin Processes
 - 1 Storage Manager
 - 2 Transaction Engines
-- 2 NuoDB Collector containers (1 for SM, 1 for TE)
+- 3 NuoDB Collector containers (1 for SM, 1 for TE, 1 for AP)
 - InfluxDB database
 
 Clone the NuoDB Collector repository and `cd` into it:

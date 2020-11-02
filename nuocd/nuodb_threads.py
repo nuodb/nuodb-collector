@@ -39,7 +39,6 @@ while True:
         _pid = subprocess.check_output(["pgrep", '^{}$'.format(process_name)])
         _pids = _pid.split()
     except subprocess.CalledProcessError:
-        print_('nuodb not running', file=sys.stderr)
         pass
     except:
         print_("Unexpected error: %s" % sys.exc_info()[0], file=sys.stderr)

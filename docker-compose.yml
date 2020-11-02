@@ -51,3 +51,14 @@ services:
       NUOCMD_API_SERVER: https://nuoadmin1:8888
       NUOCD_HOSTNAME: te
     pid: 'service:te'
+  nuocd-nuoadmin1:
+    build: .
+    depends_on:
+      - nuoadmin1
+      - sm
+      - influxdb
+    environment:
+      INFLUXURL: http://influxdb:8086
+      NUOCMD_API_SERVER: https://nuoadmin1:8888
+      NUOCD_HOSTNAME: nuoadmin1
+    pid: 'service:nuoadmin1'
