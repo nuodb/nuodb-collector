@@ -47,8 +47,6 @@ def get_admin_conn(pid):
         match = re.match('(https?://|)([^:]+)(:[0-9]+|)', api_server)
         if match:
             protocol = match.group(1)
-            if len(protocol) == 0:
-                protocol = 'https://'
             adminhost = match.group(2)
             port = match.group(3)
             if len(port) == 0:
@@ -59,7 +57,7 @@ def get_admin_conn(pid):
         if client_key:
             client_key = ROOT + client_key
             # downgrade if protocol is unspecified and client key does not exist
-            if protocol is None and not os.path.exists(client_key):
+            if not protocol and not os.path.exists(client_key):
                 client_key = None
 
         # this assumes set to a path. It could be set to True in which case we need
@@ -70,7 +68,7 @@ def get_admin_conn(pid):
             server_cert = ROOT + server_cert
 
         if protocol == 'http://' or (
-                protocol is None and not client_key):
+                not protocol and not client_key):
             # downgrade to http://
             protocol = 'http://'
             client_key = None
