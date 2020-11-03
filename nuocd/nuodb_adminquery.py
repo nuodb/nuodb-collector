@@ -41,11 +41,9 @@ def get_admin_conn(pid):
         except IOError:
             pass
 
+        protocol = None
+        address = None
         api_server = env.get('NUOCMD_API_SERVER', os.environ.get('NUOCMD_API_SERVER'))
-        if api_server is None:
-            # look in /etc/nuodb/nuoadmin.conf to see if ssl is enabled.
-            pass
-
         match = re.match('(https?://|)([^:]+)(:[0-9]+|)', api_server)
         if match:
             protocol = match.group(1)
@@ -55,23 +53,32 @@ def get_admin_conn(pid):
             port = match.group(3)
             if len(port) == 0:
                 port = ':8888'
-            api_server = protocol + adminhost + port
+            address = adminhost + port
 
-        if protocol == 'https://':
-            client_key = env.get('NUOCMD_CLIENT_KEY', os.environ.get('NUOCMD_CLIENT_KEY'))
-            if client_key:
-                client_key = ROOT + client_key
+        client_key = env.get('NUOCMD_CLIENT_KEY', os.environ.get('NUOCMD_CLIENT_KEY'))
+        if client_key:
+            client_key = ROOT + client_key
+            # downgrade if protocol is unspecified and client key does not exist
+            if protocol is None and not os.path.exists(client_key):
+                client_key = None
 
-            # this assumes set to a path. It could be set to True in which case we need
-            # to return the default path
+        # this assumes set to a path. It could be set to True in which case we need
+        # to return the default path
 
-            server_cert = env.get('NUOCMD_VERIFY_SERVER', os.environ.get('NUOCMD_VERIFY_SERVER', False))
-            if server_cert and server_cert != True:
-                server_cert = ROOT + server_cert
-        else:
+        server_cert = env.get('NUOCMD_VERIFY_SERVER', os.environ.get('NUOCMD_VERIFY_SERVER', False))
+        if server_cert and server_cert is not True:
+            server_cert = ROOT + server_cert
+
+        if protocol == 'http://' or (
+                protocol is None and not client_key):
+            # downgrade to http://
+            protocol = 'http://'
             client_key = None
             server_cert = None
+        else:
+            protocol = 'https://'
 
+        api_server = protocol + address
         nuodb_mgmt.disable_ssl_warnings()
         admin_conn = nuodb_mgmt.AdminConnection(api_server, client_key=client_key, verify=server_cert)
     except Exception as x:
@@ -89,7 +96,7 @@ parser.add_option('-k',
 parser.add_option('-a',
                   '--api-server',
                   dest='api_server',
-                  default=os.getenv('NUOCMD_API_SERVER', 'https://localhost:8888'),
+                  default=os.getenv('NUOCMD_API_SERVER', 'localhost:8888'),
                   help='ADMIN url defaults to $NUOCMD_API_SERVER if set')
 parser.add_option('-v',
                   '--verify-server',
