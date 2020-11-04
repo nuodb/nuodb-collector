@@ -161,21 +161,21 @@ Repeat the steps above for all running NuoDB engine containers you want to monit
 NuoDB Collector will be deployed in sidecar containers using NuoDB Helm Charts.
 
 See instructions for [NuoDB Helm charts](https://github.com/nuodb/nuodb-helm-charts/blob/master/README.md#nuodb-helm-chart-installation) installation.
-NuoDB Collector can be enabled separately for [Admin](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/admin) and [Database](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/database) charts. To enable it set the `insights.enabled` variable to `true`. For example:
+NuoDB Collector can be enabled separately for [Admin](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/admin) and [Database](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/database) charts. To enable it set the `nuocollector.enabled` variable to `true`. For example:
 
 ```bash
-helm install admin nuodb/admin --set insights.enabled=true --namespace nuodb
-helm install database nuodb/database --set insights.enabled=true --namespace nuodb
+helm install admin nuodb/admin --set nuocollector.enabled=true --namespace nuodb
+helm install database nuodb/database --set nuocollector.enabled=true --namespace nuodb
 ```
 
 ## Deploying custom plugins
 
 Additional Telegraf plugins can be deployed online without restarting NuoDB services. Plugins are created as Kubernetes configMap resources which are labeled with `nuodb.com/nuocollector-plugin` and the admin or database full name as a label value.
 
-The plugins are specified in `insights.plugins.admin` or `insights.plugins.database` by using the plugin name and plugin text as multiline string. Following example Helm values snippet is adding `outputs.file` plugin with name `file` for database resources:
+The plugins are specified in `nuocollector.plugins.admin` or `nuocollector.plugins.database` by using the plugin name and plugin text as multiline string. Following example Helm values snippet is adding `outputs.file` plugin with name `file` for database resources:
 
 ```
-insights:
+nuocollector:
   plugins:
     database:
       file: |-
