@@ -175,7 +175,6 @@ while True:
                 del running_local_processes[key]
 
     except subprocess.CalledProcessError:
-        print_('nuodb not running', file=sys.stderr)
         pass
     except KeyboardInterrupt:
         for key in list(running_local_processes):
