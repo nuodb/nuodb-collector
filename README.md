@@ -207,6 +207,7 @@ sudo yum install -y python-pip
 wget https://dl.influxdata.com/telegraf/releases/telegraf-1.15.2-1.x86_64.rpm
 sudo yum localinstall telegraf-1.15.2-1.x86_64.rpm
 ```
+**NOTE:** The `telegraf` installation will also install the InfluxDB time-series database instance.
 
 ### 3) Download and install NuoDB Collector
 
@@ -221,7 +222,7 @@ sudo cp -r nuocd /opt/
 
 The `conf/nuodb.conf` file in this repository configures all four input plugins for NuoDB running on localhost as described in the section above.
 The `conf/outputs.conf` file configures an output plugin to a InfluxDB instance defined by the `$INFLUXURL` environment variable.
-Replace the `<hostinflux>` placeholder in the INFLUXURL line below with the hostname of the machine running the InfluxDB instance, and then run the commands.
+Replace the `<hostinflux>` placeholder in the `INFLUXURL` line below with the hostname of the machine running the InfluxDB instance, and then run the commands.
 ```
 sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
 sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
