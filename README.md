@@ -30,7 +30,7 @@ Collects host machine resource consumption statistics on a regular 10s interval.
 # NuoDB Collector Page Outline
 [Quick Start with Docker Compose](#Quick-start-with-docker-compose)
 
-[Setup Manually in Docker](#Setup-in-docker)
+[Setup Manually in Docker](#Setup-manually-in-docker)
 
 [Setup in Kubernetes](#Setup-in-Kubernetes)
 
