@@ -207,7 +207,6 @@ sudo yum install -y python-pip
 wget https://dl.influxdata.com/telegraf/releases/telegraf-1.15.2-1.x86_64.rpm
 sudo yum localinstall telegraf-1.15.2-1.x86_64.rpm
 ```
-**NOTE:** The `telegraf` installation will also install the InfluxDB time-series database instance.
 
 ### 3) Download and install NuoDB Collector
 
@@ -245,7 +244,6 @@ Instead you can start telegraf with the following command:
 ```
 sh -c "$(cat /etc/default/telegraf | tr '\n' ' ') telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d"
 ```
-
 
 # Check Collection Status
 
