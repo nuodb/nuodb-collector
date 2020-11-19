@@ -4,8 +4,6 @@
 
 [![Build Status](https://travis-ci.org/nuodb/nuodb-collector.svg?branch=master)](https://travis-ci.org/nuodb/nuodb-collector)
 
-The NuoDB Collector (NuoCD - Collector Daemon) is a replacement for [NuoCA](https://github.com/nuodb/nuoca).
-
 # Introduction
 
 Most modern application monitoring systems consist of the following 3
@@ -26,6 +24,10 @@ Built into this container are 4 input plugins to collect metrics from the NuoDB 
 3.  `synctrace` - collects internal NuoDB lock tracing data on a regular 30s interval.
 4.  `threads` - extends the [Telegraf ProcStat Input plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat) with per-thread data.
 Collects host machine resource consumption statistics on a regular 10s interval.
+
+To setup NuoDB Insights visual monitoring which uses the NuoDB Collector, follow the instructions on the [NuoDB Insights](https://github.com/nuodb/nuodb-insights) github page.
+
+to setup NuoDB perfomrance metric collection using NuoDB Collector when not using NuoDB Insights, follow the instruction on this page
 
 # NuoDB Collector Page Outline
 [Quick Start with Docker Compose](#Quick-start-with-docker-compose)
