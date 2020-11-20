@@ -4,8 +4,6 @@
 
 [![Build Status](https://travis-ci.org/nuodb/nuodb-collector.svg?branch=master)](https://travis-ci.org/nuodb/nuodb-collector)
 
-The NuoDB Collector (NuoCD - Collector Daemon) is a replacement for [NuoCA](https://github.com/nuodb/nuoca).
-
 # Introduction
 
 Most modern application monitoring systems consist of the following 3
@@ -27,14 +25,18 @@ Built into this container are 4 input plugins to collect metrics from the NuoDB 
 4.  `threads` - extends the [Telegraf ProcStat Input plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat) with per-thread data.
 Collects host machine resource consumption statistics on a regular 10s interval.
 
+To setup NuoDB Insights visual monitoring which uses the NuoDB Collector, follow the instructions on the [NuoDB Insights](https://github.com/nuodb/nuodb-insights) github page.
+
+To setup NuoDB Performance metric collection using NuoDB Collector when not using NuoDB Insights, follow the instruction on this page.
+
 # NuoDB Collector Page Outline
 [Quick Start with Docker Compose](#Quick-start-with-docker-compose)
 
-[Setup Manually in Docker](#Setup-in-docker)
+[Setup Manually in Docker](#Setup-manually-in-docker)
 
 [Setup in Kubernetes](#Setup-in-Kubernetes)
 
-[Setup on Bare Metal](#Setup-on-bare-metal)
+[Setup on Bare Metal Linux](#Setup-on-bare-metal-linux)
 
 [Check Collection Status](#Check-collection-status)
 
@@ -43,9 +45,9 @@ Collects host machine resource consumption statistics on a regular 10s interval.
 For a complete example on how to set up the NuoDB domain with NuoDB collector, you can use `docker compose`.
 This repository contains a Docker Compose file (`docker-compose.yml`) which will start:
 
-- 2 Admin Processes
-- 1 Storage Manager
-- 2 Transaction Engines
+- 2 Admin Processes (AP)
+- 1 Storage Manager (SM)
+- 2 Transaction Engines (TE)
 - 3 NuoDB Collector containers (1 for SM, 1 for TE, 1 for AP)
 - InfluxDB database
 
@@ -87,11 +89,11 @@ docker build .
 docker tag <SHA> <TAG>
 ```
 
-## Running Prerequisites
+## Prerequisites
 
-### NuoDB Domain
+### NuoDB Database
 
-As a prerequisite you must have a running NuoDB domain.
+As a prerequisite you must have a running NuoDB Admin domain and database.
 To start NuoDB in Docker, follow the [NuoDB Docker Blog Part I](https://nuodb.com/blog/deploy-nuodb-database-docker-containers-part-i).
 Following this tutorial will also create the Docker network `nuodb-net`.
 
@@ -158,9 +160,7 @@ Repeat the steps above for all running NuoDB engine containers you want to monit
 
 ## Deploying NuoDB Collector using NuoDB Helm Charts
 
-NuoDB Collector will be deployed in sidecar containers using NuoDB Helm Charts.
-
-See instructions for [NuoDB Helm charts](https://github.com/nuodb/nuodb-helm-charts/blob/master/README.md#nuodb-helm-chart-installation) installation.
+Follow the instructions on the [NuoDB Helm charts](https://github.com/nuodb/nuodb-helm-charts/blob/master/README.md#nuodb-helm-chart-installation) installation page.
 NuoDB Collector can be enabled separately for [Admin](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/admin) and [Database](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/database) charts. To enable it set the `nuocollector.enabled` variable to `true`. For example:
 
 ```bash
@@ -184,11 +184,11 @@ nuocollector:
         data_format = "influx"
 ```
 
-# Setup on Bare Metal
+# Setup on Bare Metal Linux
 
 ## Installation
 
-These steps are for RedHat or CentOS. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
+These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
 
 ### 1) Install dependencies
 
@@ -219,9 +219,9 @@ sudo cp -r nuocd /opt/
 
 ## Configuration
 
-The `conf/nuodb.conf` file in this repository configures all 4 input plugins for NuoDB running on localhost as described in the section above.
+The `conf/nuodb.conf` file in this repository configures all four input plugins for NuoDB running on localhost as described in the section above.
 The `conf/outputs.conf` file configures an output plugin to a InfluxDB instance defined by the `$INFLUXURL` environment variable.
-Replace the `<hostinflux>` placeholder with the hostname for a running InfluxDB instance.
+Replace the `<hostinflux>` placeholder in the `INFLUXURL` line below with the hostname of the machine running the InfluxDB instance, and then run the commands.
 ```
 sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
 sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
@@ -244,7 +244,6 @@ Instead you can start telegraf with the following command:
 ```
 sh -c "$(cat /etc/default/telegraf | tr '\n' ' ') telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d"
 ```
-
 
 # Check Collection Status
 
