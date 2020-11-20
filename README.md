@@ -188,7 +188,7 @@ nuocollector:
 
 ## Installation
 
-These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.data.com/downloads/).
+These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
 
 ### 1) Install dependencies
 
