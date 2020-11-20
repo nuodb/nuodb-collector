@@ -27,7 +27,7 @@ Collects host machine resource consumption statistics on a regular 10s interval.
 
 To setup NuoDB Insights visual monitoring which uses the NuoDB Collector, follow the instructions on the [NuoDB Insights](https://github.com/nuodb/nuodb-insights) github page.
 
-to setup NuoDB perfomrance metric collection using NuoDB Collector when not using NuoDB Insights, follow the instruction on this page
+To setup NuoDB Performance metric collection using NuoDB Collector when not using NuoDB Insights, follow the instruction on this page.
 
 # NuoDB Collector Page Outline
 [Quick Start with Docker Compose](#Quick-start-with-docker-compose)
