@@ -160,9 +160,7 @@ Repeat the steps above for all running NuoDB engine containers you want to monit
 
 ## Deploying NuoDB Collector using NuoDB Helm Charts
 
-The NuoDB Collector is deployed in sidecar containers when deploying with the NuoDB Helm Charts.
-
-See instructions for [NuoDB Helm charts](https://github.com/nuodb/nuodb-helm-charts/blob/master/README.md#nuodb-helm-chart-installation) installation.
+Follow the instructions on the [NuoDB Helm charts](https://github.com/nuodb/nuodb-helm-charts/blob/master/README.md#nuodb-helm-chart-installation) installation page.
 NuoDB Collector can be enabled separately for [Admin](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/admin) and [Database](https://github.com/nuodb/nuodb-helm-charts/tree/master/stable/database) charts. To enable it set the `nuocollector.enabled` variable to `true`. For example:
 
 ```bash
