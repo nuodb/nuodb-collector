@@ -24,7 +24,7 @@ from six import *
 class Monitor:
     def __init__(self, nuodb_process, conn, relative, args):
         self._process = nuodb_process
-        self._dbkey = conn._get_db_password(nuodb_process.db_name)
+        self._conn = conn
         self._relative = relative
         self._lastnow = None
         self._stalls = (0, {})
@@ -34,35 +34,23 @@ class Monitor:
     header = "#time,id,startId,host,pid,dbname,timedelta,totalSumStalls,name,numLocks,numUnlocks,numStalls,totalTimeStalls,maxStallTime"
 
     def execute_query(self):
-        session = None
-        try:
-            session = nuodb_mgmt._get_authorized_session(self._process.address, self._dbkey, 'Query')
-            msg = '<Request Service="Query" Type="SyncTrace"/>'
-            session.send(msg)
-            msg = session.recv()
-            now = datetime.now()
-            st = ElementTree.fromstring(msg)
-            # if self._lastnow == None:
-            #  print ElementTree.tostring(st)
-            pid = st.get("PID")
-            total = int(st.get("SampleTime"))
-            laststalls = self._stalls
+        now = datetime.now()
+        st = self._conn.send_query_request(self._process.start_id, "SyncTrace")
+        total = int(st.get("SampleTime"))
+        laststalls = self._stalls
 
-            def value(v):
-                return int(v) if v else 0
+        def value(v):
+            return int(v) if v else 0
 
-            stalls = dict([(tr.get("Name"), (value(tr.get("NumLocks")), value(tr.get("NumUnlocks")),
-                                             value(tr.get("NumStalls")), value(tr.get("TotalStallTime")),
-                                             value(tr.get("MaxStallTime"))
-                                             )
-                            ) for tr in st.findall("Trace")])
-            self._stalls = (total, stalls)
-            ototal, ostalls = laststalls
-            self.process(now, total, stalls, ototal, ostalls)
-            self._lastnow = now
-        finally:
-            if session:
-                session.close()
+        stalls = dict([(tr.get("Name"), (value(tr.get("NumLocks")), value(tr.get("NumUnlocks")),
+                                         value(tr.get("NumStalls")), value(tr.get("TotalStallTime")),
+                                         value(tr.get("MaxStallTime"))
+                                         )
+                        ) for tr in st.findall("Trace")])
+        self._stalls = (total, stalls)
+        ototal, ostalls = laststalls
+        self.process(now, total, stalls, ototal, ostalls)
+        self._lastnow = now
 
     def process(self, now, total, stalls, ototal, ostalls):
         """ process all sync points """

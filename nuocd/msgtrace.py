@@ -22,39 +22,29 @@ class Monitor:
 
     def __init__(self, nuodb_process, conn, relative, args):
         self._process = nuodb_process
-        self._dbkey = conn._get_db_password(nuodb_process.db_name)
+        self._conn = conn
         self._relative = relative
         self._lastnow = None
         self._stalls = {}
         print(Monitor.header)
 
     def execute_query(self):
-        session = nuodb_mgmt._get_authorized_session(self._process.address, self._dbkey, 'Query')
-
-        try:
-            msg = '<Request Service="Query" Type="MessageTrace"/>'
-            session.send(msg)
-            msg = session.recv()
-            now = datetime.now()
-            st = ElementTree.fromstring(msg)
-            mats = st.findall("MessageApplyTime")
-            laststalls = self._stalls
-            self._stalls = {}
-            for mat in mats:
-                total = int(mat.get("SampleTime"))
-                fromNodeId = mat.get("NodeId")
-                totals = mat.findall("Trace")
-                stalls = dict([(tr.get("Name"), (int(tr.get("NumStalls")),
-                                                 int(tr.get("TotalStallTime")),
-                                                 int(tr.get("MaxStallTime")))) for tr in totals])
-                self._stalls[fromNodeId] = (total, stalls)
-                ototal, ostalls = laststalls[fromNodeId] if fromNodeId in laststalls else (0, {})
-                self.process(now, fromNodeId, total, stalls, ototal, ostalls)
-            self._lastnow = now
-        finally:
-            if session:
-                session.close()
-            pass
+        now = datetime.now()
+        st = self._conn.send_query_request(self._process.start_id, "MessageTrace")
+        mats = st.findall("MessageApplyTime")
+        laststalls = self._stalls
+        self._stalls = {}
+        for mat in mats:
+            total = int(mat.get("SampleTime"))
+            fromNodeId = mat.get("NodeId")
+            totals = mat.findall("Trace")
+            stalls = dict([(tr.get("Name"), (int(tr.get("NumStalls")),
+                                             int(tr.get("TotalStallTime")),
+                                             int(tr.get("MaxStallTime")))) for tr in totals])
+            self._stalls[fromNodeId] = (total, stalls)
+            ototal, ostalls = laststalls[fromNodeId] if fromNodeId in laststalls else (0, {})
+            self.process(now, fromNodeId, total, stalls, ototal, ostalls)
+        self._lastnow = now
 
     def process(self, now, fromNodeId, total, stalls, ototal, ostalls):
         """ process one node listener (fromNodeId) at time now"""

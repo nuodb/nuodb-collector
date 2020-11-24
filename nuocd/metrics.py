@@ -142,15 +142,15 @@ class Monitor:
     # (ntime,startId,hostname,pid,dbname,timedelta,fromNodeId,total-ototal,name,numStalls,totalTimeStalls,maxStallTime)
 
     def __init__(self, nuodb_process, conn, relative, args):
-        self._dbkey = conn._get_db_password(nuodb_process.db_name)
         self._process = nuodb_process
         self._fullstate = None
         self._items = None
         #self._interval = 1
-        self.__session = nuodb_mgmt._monitor_process(self._process.address, self._dbkey)
+
+        self.__session = conn.monitor_process(self._process.start_id)
 
     def execute_query(self):
-        xml_msg = next(self.__session)
+        _, xml_msg = next(self.__session)
         if xml_msg.tag == 'Items':
             self._items = {}
             for item in xml_msg.findall('Item'):
@@ -161,7 +161,7 @@ class Monitor:
                 else:
                     self._items[name] = None
                     print_("WARN: don't know how to handle item %s..." % (name,), file=sys.stderr)
-            xml_msg = next(self.__session)
+            _, xml_msg = next(self.__session)
 
         if xml_msg.tag == 'Status':
             #self._interval = 10
