@@ -184,9 +184,60 @@ nuocollector:
         data_format = "influx"
 ```
 
+
 # Setup on Bare Metal Linux
 
-## Installation
+## Installation for Red Hat 8 / CentOS 8 and later releases
+
+These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
+
+### 1) Install Python 2.7
+
+```
+sudo yum install -y epel-release
+sudo yum install -y python2
+```
+
+### 2) Download and install `telegraf`
+
+```
+wget https://dl.influxdata.com/telegraf/releases/telegraf-1.15.2-1.x86_64.rpm
+sudo yum localinstall -y telegraf-1.15.2-1.x86_64.rpm
+```
+
+### 3) Download and install NuoDB Collector and dependencies
+
+```
+git clone https://github.com/nuodb/nuodb-collector.git
+cd nuodb-collector
+sudo pip2 install -r requirements.txt
+sudo cp -r nuocd /opt/
+```
+
+## Configuration
+
+The `conf/nuodb.conf` file in this repository configures all 4 input plugins for NuoDB running on localhost as described in the section above.
+The `conf/outputs.conf` file configures an output plugin to a InfluxDB instance defined by the `$INFLUXURL` environment variable.
+Replace the `<hostinflux>` placeholder with the hostname for a running InfluxDB instance.
+```
+sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
+sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
+sudo sed -i.bak "/^\[\[outputs.influxdb]]/s/^/# /" /etc/telegraf/telegraf.conf
+sudo chown -R telegraf.telegraf /etc/telegraf
+sudo sh -c "cat >/etc/default/telegraf" <<EOF
+INFLUXURL=http://<hostinflux>:8086
+PYTHON2=python2
+EOF
+```
+
+## Start NuoDB Collector
+
+```
+sudo systemctl start telegraf
+```
+
+
+## Installation for Red Hat 7 / CentOS 7 and earlier releases
 
 These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
 
@@ -205,7 +256,7 @@ sudo yum install -y python-pip
 
 ```
 wget https://dl.influxdata.com/telegraf/releases/telegraf-1.15.2-1.x86_64.rpm
-sudo yum localinstall telegraf-1.15.2-1.x86_64.rpm
+sudo yum localinstall -y telegraf-1.15.2-1.x86_64.rpm
 ```
 
 ### 3) Download and install NuoDB Collector
@@ -213,37 +264,38 @@ sudo yum localinstall telegraf-1.15.2-1.x86_64.rpm
 ```
 git clone https://github.com/nuodb/nuodb-collector.git
 cd nuodb-collector
-pip install -r requirements.txt
+sudo pip install -r requirements.txt
 sudo cp -r nuocd /opt/
 ```
 
 ## Configuration
 
-The `conf/nuodb.conf` file in this repository configures all four input plugins for NuoDB running on localhost as described in the section above.
+The `conf/nuodb.conf` file in this repository configures all 4 input plugins for NuoDB running on localhost as described in the section above.
 The `conf/outputs.conf` file configures an output plugin to a InfluxDB instance defined by the `$INFLUXURL` environment variable.
-Replace the `<hostinflux>` placeholder in the `INFLUXURL` line below with the hostname of the machine running the InfluxDB instance, and then run the commands.
+Replace the `<hostinflux>` placeholder with the hostname for a running InfluxDB instance.
 ```
 sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
 sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
+sudo sed -i.bak "/^\[\[outputs.influxdb]]/s/^/# /" /etc/telegraf/telegraf.conf
 sudo chown -R telegraf.telegraf /etc/telegraf
-cat <<EOF >/etc/default/telegraf
+sudo sh -c "cat >/etc/default/telegraf" <<EOF
 INFLUXURL=http://<hostinflux>:8086
-PYTHONPATH=/opt/nuocd/pylib
+PYTHON2=python
 EOF
 ```
 
 ## Start NuoDB Collector
 
 ```
-sudo systemctl daemon-reload
-sudo systemctl restart telegraf
+sudo systemctl start telegraf
 ```
 
 **NOTE:** If not starting telegraf via `systemd` then the variables set in `/etc/default/telegraf` are not picked up automatically.
 Instead you can start telegraf with the following command:
 ```
-sh -c "$(cat /etc/default/telegraf | tr '\n' ' ') telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d"
+env $(cat /etc/default/telegraf) telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d
 ```
+
 
 # Check Collection Status
 
