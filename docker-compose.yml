@@ -5,24 +5,30 @@ services:
     environment:
       NUODB_DOMAIN_ENTRYPOINT: nuoadmin1
     hostname: nuoadmin1
+    restart: unless-stopped
     command: ["nuoadmin"]
   sm:
     image: $DOCKER_IMAGE
     hostname: sm
+    restart: unless-stopped
     environment:
       NUOCMD_API_SERVER: nuoadmin1:8888
     depends_on:
     - nuoadmin1
-    command: ["nuodocker", "start", "sm", "--db-name", "hockey", "--server-id", "nuoadmin1", "--dba-user", "dba", "--dba-password", "goalie"]
+    command: ["nuodocker", "start", "sm", "--db-name", "hockey", "--server-id", "nuoadmin1",
+        "--dba-user", "dba", "--dba-password", "goalie",
+        "--servers-ready-timeout", "60"]
   te:
     image: $DOCKER_IMAGE
     hostname: te
+    restart: unless-stopped
     environment:
       NUOCMD_API_SERVER: nuoadmin1:8888
     depends_on:
     - nuoadmin1
     - sm
-    command: ["nuodocker", "start", "te", "--db-name", "hockey", "--server-id", "nuoadmin1"]
+    command: ["nuodocker", "start", "te", "--db-name", "hockey", "--server-id", "nuoadmin1",
+          "--servers-ready-timeout", "60"]
   influxdb:
     image: influxdb:latest
     ports:
@@ -31,6 +37,7 @@ services:
       - "8082:8082"
   nuocd-sm:
     build: .
+    restart: unless-stopped
     depends_on:
     - nuoadmin1
     - sm
@@ -42,6 +49,7 @@ services:
     pid: 'service:sm'
   nuocd-te:
     build: .
+    restart: unless-stopped
     depends_on:
       - nuoadmin1
       - sm
@@ -53,6 +61,7 @@ services:
     pid: 'service:te'
   nuocd-admin1:
     build: .
+    restart: unless-stopped
     depends_on:
       - nuoadmin1
       - influxdb
