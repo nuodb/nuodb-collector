@@ -1,7 +1,4 @@
 from datetime import datetime
-from xml.etree import ElementTree
-
-from pynuoadmin import nuodb_mgmt
 from six import *
 
 """

@@ -1,4 +1,3 @@
-import fileinput
 import glob
 import os
 import re
@@ -17,83 +16,114 @@ def signal_handler(sig, frame):
 
 
 signal.signal(signal.SIGINT, signal_handler)
-lineformat = "%s,%s,%s,%s,%s,%d,%f,%f,%f,%d,%d,%s"
-timefmt = "%s%f"
-print("#host,processid,threadid,state,exe,lcpu,utime,stime,ttime,minf,majf,time")
 
-hostname = socket.gethostname()
-clk_tck = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
+LINE_FORMAT = "%s,%s,%s,%s,%s,%d,%f,%f,%f,%d,%d,%s"
+TIMEFMT = "%s%f"
+HOSTNAME = socket.gethostname()
+CLK_TCK = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
 
 if len(sys.argv) < 2:
-    process_name = "nuodb"
+    PROCESS_NAME = "nuodb"
 else:
-    process_name = sys.argv[1]
+    PROCESS_NAME = sys.argv[1]
 
 pat = "(\d+) \((.*)\)"
 m = re.compile(pat)
 
-while True:
-    _pids = None
-    try:
-        # assume only one process by given name
-        _pid = subprocess.check_output(["pgrep", '^{}$'.format(process_name)])
-        _pids = _pid.split()
-    except subprocess.CalledProcessError:
-        pass
-    except:
-        print_("Unexpected error: %s" % sys.exc_info()[0], file=sys.stderr)
-        pass
+module = "nuodb_threads"
 
+
+def transform_to_cpu_percentage(clock_ticks, elapsed_time_in_seconds):
+    return float(clock_ticks)/CLK_TCK * 100. / elapsed_time_in_seconds
+
+
+class NuoDBProcess:
+    stat_files = None
     last_measurements = {}
+    host_pid = None
 
-    while _pids is not None:
-        lines = []
-        now = datetime.now()
-        tasks = []
-        for _pid in _pids:
-            tasks.extend(glob.glob("/proc/%s/task/*/stat" % (_pid)))
+    def __init__(self, pid):
+        self.host_pid = pid
 
-        if not tasks:
-            break
+    def read(self):
+        start_read = datetime.now()
+        visited_this_cycle = set()
 
-        queue = []
-        # what happens if process goes away before all tasks
-        # are read?  does this hang?  throw exception ?
-        for line in fileinput.input(tasks):
-            queue.append(line)
+        for stat_file in glob.glob("/proc/%s/task/*/stat" % self.host_pid):
+            try:
+                with open(stat_file, 'r') as f:
+                    line = f.read()
+                    result = m.match(line)
+                    thread_pid, exe = result.groups()
+                    args = line[:-1].split(' ')
+                    args = args[-50:]
+                    if thread_pid == self.host_pid:
+                        continue
+                    visited_this_cycle.add(thread_pid)
+                    args.insert(0, exe)
+                    args.insert(0, start_read)
+                    if thread_pid in self.last_measurements.keys():
+                        prev_measurement = self.last_measurements[thread_pid]
+                        exe = args[1]
+                        state = args[2]
+                        minf = int(args[9]) - int(prev_measurement[9])
+                        majf = int(args[11]) - int(prev_measurement[11])
+                        lcpu = int(args[38])
+                        deltatime = start_read - prev_measurement[0]
+                        dt = deltatime.total_seconds()
+                        utime = transform_to_cpu_percentage(args[13] - prev_measurement[13], dt)
+                        stime = transform_to_cpu_percentage(args[14] - prev_measurement[14], dt)
+                        ttime = utime + stime
+                        print(LINE_FORMAT % (HOSTNAME, self.host_pid, thread_pid, state, exe, lcpu, utime, stime, ttime, minf, majf, start_read.strftime(TIMEFMT)))
 
-        for line in queue:
-            result = m.match(line)
-            pid, exe = result.groups()
-            args = line[:-1].split(' ')
-            args = args[-50:]
-            if pid == _pid:
+                    self.last_measurements[thread_pid] = args
+            except Exception as thread_exception:
+                print_("%s: Could not read thread stats (%s) for NuoDB process with pid (%s) due to: %s " %
+                       (module, thread_pid, self.host_pid, thread_exception), file=sys.stderr)
                 continue
-            args.insert(0, exe)
-            args.insert(0, now)
-            if pid in last_measurements:
-                prev_measurement = last_measurements[pid]
-                exe = args[1]
-                state = args[2]
-                minf = int(args[9]) - int(prev_measurement[9])
-                majf = int(args[11]) - int(prev_measurement[11])
-                lcpu = int(args[38])
-                deltatime = now - prev_measurement[0]
-                dt = deltatime.total_seconds()
-                utime = ((float(args[13]) - float(prev_measurement[13])) / clk_tck) * 100. / dt
-                stime = ((float(args[14]) - float(prev_measurement[14])) / clk_tck) * 100. / dt
-                ttime = utime + stime
-                print(lineformat % (
-                hostname, _pid, pid, state, exe, lcpu, utime, stime, ttime, minf, majf, now.strftime(timefmt)))
-            last_measurements[pid] = args
 
-        tbd = [k for k in last_measurements.iterkeys() if last_measurements[k][0] != now]
-        for k in tbd:
-            del last_measurements[k]
+        # clean out threads that are not running anymore
+        for thread_pid in self.last_measurements.keys():
+            if thread_pid not in visited_this_cycle:
+                del self.last_measurements[thread_pid]
+
+
+if __name__ == "__main__":
+    print("#host,processid,threadid,state,exe,lcpu,utime,stime,ttime,minf,majf,time")
+
+    known_nuodb_processes = {}
+
+    while True:
+        process_begin_time = datetime.now()
+        try:
+            raw_pgrep = subprocess.check_output(["pgrep", '^{}$'.format(PROCESS_NAME)])
+            pids = raw_pgrep.split()
+            for pid in pids:
+                if pid not in known_nuodb_processes.keys():
+                    proc = NuoDBProcess(pid)
+                    known_nuodb_processes[pid] = proc
+                    print_("%s: Found new NuoDB process with pid (%s)." % (module, pid), file=sys.stderr)
+
+            for known_pid in known_nuodb_processes.keys():
+                if known_pid not in pids:
+                    del known_nuodb_processes[known_pid]
+                    print_("%s: NuoDB process with pid (%s) exited." % (module, pid), file=sys.stderr)
+
+        except subprocess.CalledProcessError:
+            pass
+        except:
+            print_("%s: Unexpected error: %s" % (module, sys.exc_info()[0]), file=sys.stderr)
+            pass
+
+        for pid, process in known_nuodb_processes.items():
+            try:
+                process.read()
+            except Exception as e:
+                print_("%s: Reading thread stats of NuoDB process with pid (%s) failed due to exception: %s" % (module, pid, e), file=sys.stderr)
+                del known_nuodb_processes[pid]
+
         sys.stdout.flush()
 
-        wait = datetime.now() - now
-        sleepFor = 10 - wait.total_seconds() - 1. / clk_tck
+        wait = datetime.now() - process_begin_time
+        sleepFor = 10 - wait.total_seconds() - 1. / CLK_TCK
         time.sleep(sleepFor)
-
-    time.sleep(10)

@@ -38,6 +38,8 @@ def get_admin_conn(pid):
                 x = e.read()
                 env = dict([tuple(y.split('=', 1)) for y in x.split('\0') if '=' in y and y.startswith('NUOCMD_')])
             ROOT = '/proc/%s/root' % (pid,)
+
+            print_("%s: Parsed Environmental Variables for NuoDB Process pid (%s): %s" % (module, pid, env), file=sys.stderr)
         except IOError:
             pass
 
@@ -80,7 +82,7 @@ def get_admin_conn(pid):
         nuodb_mgmt.disable_ssl_warnings()
         admin_conn = nuodb_mgmt.AdminConnection(api_server, client_key=client_key, verify=server_cert)
     except Exception as x:
-        print_("Exception: %s" % x, file=sys.stderr)
+        print_("%s: Connection to admin failed due to exception: %s" % (module, x), file=sys.stderr)
     finally:
         return admin_conn
 
@@ -141,16 +143,21 @@ while True:
         # check if found processes are already known or new
         for pid in pids:
             if pid not in running_local_processes:
+                print_("%s: Found new NuoDB process with pid (%s). Attempting to start collection now." % (module, pid), file=sys.stderr)
                 filter_by = dict(hostname=options.hostname, pid=str(pid))
                 conn = get_admin_conn(pid)
                 ps = conn.get_processes(**filter_by)
                 if ps:
                     local_process = ps[0]
                     running_local_processes[pid] = Monitor(local_process, conn, True, module_args)
+                    print_("%s: Collection of NuoDB process with pid (%s) successfully established." % (module, pid), file=sys.stderr)
+                else:
+                    print_("%s: No known running processes found in NuoDB domain. Ignoring NuoDB process with pid (%s)" % (module, pid), file=sys.stderr)
 
         # check if any known processes are no longer available
         for key in list(running_local_processes):
             if key not in pids:
+                print_("%s: NuoDB process with pid (%s) exited. Stopping collection." % (module, pid), file=sys.stderr)
                 del running_local_processes[key]
 
         # for each nuodb process, execute query
@@ -171,7 +178,7 @@ while True:
             except KeyboardInterrupt:
                 raise
             except Exception as e:
-                print_(e, file=sys.stderr)
+                print_("%s: Failure when executing monitoring query: %s" % (module, e), file=sys.stderr)
                 del running_local_processes[key]
 
     except subprocess.CalledProcessError:

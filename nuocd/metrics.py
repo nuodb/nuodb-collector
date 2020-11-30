@@ -1,7 +1,6 @@
 import sys
 import time
 
-from pynuoadmin import nuodb_mgmt
 from six import print_
 
 
