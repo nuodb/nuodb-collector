@@ -71,8 +71,8 @@ class NuoDBProcess:
                         lcpu = int(args[38])
                         deltatime = start_read - prev_measurement[0]
                         dt = deltatime.total_seconds()
-                        utime = transform_to_cpu_percentage(args[13] - prev_measurement[13], dt)
-                        stime = transform_to_cpu_percentage(args[14] - prev_measurement[14], dt)
+                        utime = transform_to_cpu_percentage(float(args[13]) - float(prev_measurement[13]), dt)
+                        stime = transform_to_cpu_percentage(float(args[14]) - float(prev_measurement[14]), dt)
                         ttime = utime + stime
                         print(LINE_FORMAT % (HOSTNAME, self.host_pid, thread_pid, state, exe, lcpu, utime, stime, ttime, minf, majf, start_read.strftime(TIMEFMT)))
 
