@@ -190,6 +190,7 @@ nuocollector:
 These steps are for Red Hat (RHEL) or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
 
 [Installation for version 8 releases](#Installation-for-version-8-releases)
+
 [Installation for version 7 releases](#Installation-for-version-7-releases)
 
 ## Installation for version 8 releases
