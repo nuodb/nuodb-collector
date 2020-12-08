@@ -187,9 +187,12 @@ nuocollector:
 
 # Setup on Bare Metal Linux
 
-## Installation for Red Hat 8 / CentOS 8 and later releases
+These steps are for Red Hat (RHEL) or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
 
-These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
+[Installation for version 8 releases](#Installation-for-version-8-releases)
+[Installation for version 7 releases](#Installation-for-version-7-releases)
+
+## Installation for version 8 releases
 
 ### 1) Install Python 2.7
 
@@ -236,10 +239,7 @@ EOF
 sudo systemctl start telegraf
 ```
 
-
-## Installation for Red Hat 7 / CentOS 7 and earlier releases
-
-These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platforms, see [Telegraf Documentation](https://portal.influxdata.com/downloads/).
+## Installation for version 7 releases
 
 ### 1) Install dependencies
 
