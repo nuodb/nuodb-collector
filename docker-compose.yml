@@ -39,6 +39,7 @@ services:
       INFLUXURL: http://influxdb:8086
       NUOCMD_API_SERVER: nuoadmin1:8888
       NUOCD_HOSTNAME: sm
+      PYTHON2: python
     pid: 'service:sm'
   nuocd-te:
     build: .
@@ -50,6 +51,7 @@ services:
       INFLUXURL: http://influxdb:8086
       NUOCMD_API_SERVER: nuoadmin1:8888
       NUOCD_HOSTNAME: te
+      PYTHON2: python
     pid: 'service:te'
   nuocd-admin1:
     build: .
@@ -60,4 +62,5 @@ services:
       INFLUXURL: http://influxdb:8086
       NUOCMD_API_SERVER: https://nuoadmin1:8888
       NUOCD_HOSTNAME: nuoadmin1
+      PYTHON2: python
     pid: 'service:nuoadmin1'
