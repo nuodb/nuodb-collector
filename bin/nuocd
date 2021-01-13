@@ -27,4 +27,6 @@ else
     fi
 fi
 
+echo "Found $_python"
+
 exec "$_python" "$@"
