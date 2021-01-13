@@ -22,10 +22,9 @@ if test -z "$NUOPYTHON" && test -x "$_home/etc/python/nuopython"; then
 else
     _python=${NUOPYTHON:-$PYTHON}
     if test -z "$_python"; then
-        _python=$(command -v python2.7) || _python=$(command -v python) \
+        _python=$(command -v python) || _python=$(command -v python2.7)  \
             || die "Python must be installed"
     fi
-
 fi
 
 exec "$_python" "$@"
