@@ -7,25 +7,8 @@ unalias -a
 
 die () { echo "$*"; exit 1; }
 
-# Find the installation directory.
-CMD=${0##*/}
-DIR=$(cd "${0%$CMD}." && pwd)
-
-_home=$NUODB_HOME
-if test -z "$_home"; then
-    test -f "${DIR%/*}"/bin/nuodb && _home=${DIR%/*} || _home=/opt/nuodb
-fi
-
-if test -z "$NUOPYTHON" && test -x "$_home/etc/python/nuopython"; then
-    # nuopython sets up local site-packages for us
-    _python="$_home/etc/python/nuopython"
-else
-    _python=${NUOPYTHON:-$PYTHON}
-    if test -z "$_python"; then
-        _python=$(command -v python) || _python=$(command -v python2.7)  \
-            || die "Python must be installed"
-    fi
-fi
+_python=$(command -v python) || _python=$(command -v python2) || _python=$(command -v python2.7)  \
+  || die "Python must be installed"
 
 echo "Found $_python"
 
