@@ -221,10 +221,12 @@ sudo cp -r nuocd /opt/
 
 The `conf/nuodb.conf` file in this repository configures all four input plugins for NuoDB running on localhost as described in the section above.
 The `conf/outputs.conf` file configures an output plugin to a InfluxDB instance defined by the `$INFLUXURL` environment variable.
+The `bin/nuocd` file is a convenience wrapper for python.
 Replace the `<hostinflux>` placeholder in the `INFLUXURL` line below with the hostname of the machine running the InfluxDB instance, and then run the commands.
 ```
 sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
 sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
+sudo cp bin/nuocd /usr/local/bin/nuocd
 sudo chown -R telegraf.telegraf /etc/telegraf
 cat <<EOF >/etc/default/telegraf
 INFLUXURL=http://<hostinflux>:8086

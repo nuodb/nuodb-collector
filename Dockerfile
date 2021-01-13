@@ -19,6 +19,8 @@ COPY --chown=telegraf:0 conf/telegraf.conf  /etc/telegraf/telegraf.conf
 COPY --chown=telegraf:0 conf/nuodb.conf     /etc/telegraf/telegraf.d/static/nuodb.conf
 COPY --chown=telegraf:0 conf/outputs.conf   /etc/telegraf/telegraf.d/dynamic/outputs.conf
 
+COPY --chown=telegraf:0 bin/nuocd           /usr/local/bin/nuocd
+
 USER 1000:0
 
 CMD ["telegraf", "--config", "/etc/telegraf/telegraf.conf", "--config-directory", "/etc/telegraf/telegraf.d"]
