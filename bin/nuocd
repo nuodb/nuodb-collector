@@ -13,6 +13,6 @@ if test -z "$_python"; then
   _python=$(command -v python2.7) || _python=$(command -v python2) || _python=$(command -v python)  \
     || die "Python must be installed"
 
-echo "Found $_python"
+echo "Found $_python" >&2
 
 exec "$_python" "$@"
