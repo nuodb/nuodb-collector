@@ -9,6 +9,7 @@ pip install -r requirements.txt
 
 sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
 sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
+sudo cp bin/nuocd /usr/local/bin/nuocd
 
 sudo systemctl daemon-reload
 sudo systemctl stop telegraf
