@@ -13,6 +13,4 @@ if test -z "$_python"; then
   || die "Python must be installed"
 fi
 
-echo "Found $_python" >&2
-
 exec "$_python" "$@"
