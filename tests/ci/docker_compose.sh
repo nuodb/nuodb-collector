@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-export NUOVERSION=4.0.7
+export NUOVERSION=4.2
 export DOCKER_IMAGE=nuodb/nuodb-ce:$NUOVERSION
 
 docker pull DOCKER_IMAGE
 
-docker-compose up&
+docker-compose up -d
 
 sleep 120
 
