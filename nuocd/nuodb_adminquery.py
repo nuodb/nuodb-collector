@@ -108,6 +108,11 @@ parser.add_option('-n',
                   dest='hostname',
                   default=os.getenv('NUOCD_HOSTNAME', socket.gethostname()),
                   help='name of this host, as known by admin layer.')
+parser.add_option('-f',
+                  '--embedded',
+                  dest='full_options',
+                  default=None,
+                  help='find embedded TE by search full arguments looking for specified pattern.')
 parser.add_option('-i',
                   '--interval',
                   dest='interval',
@@ -137,7 +142,10 @@ while True:
     try:
         # only interested in nuodb process on localhost, and don't
         # want to make nuoadmin rest call unless a new process is discovered.
-        _processes = subprocess.check_output(["pgrep", "^nuodb$"])
+        if options.full_options:
+            _processes = subprocess.check_output(["pgrep", "-f", options.full_options])
+        else:
+            _processes = subprocess.check_output(["pgrep", "^nuodb$"])
         pids = _processes.split()
 
         # check if found processes are already known or new
