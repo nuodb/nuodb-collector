@@ -115,6 +115,8 @@ Databases:
 
 ### InfluxDB
 
+*NuoDB Collector only supports InfluxDB version 1.X.*
+
 The collector assumes that an InfluxDB instance is running.
 Start InfluxDB with Docker:
 
@@ -123,7 +125,7 @@ docker run -d --name influxdb \
       --network nuodb-net \
       -p 8086:8086 \
       -p 8082:8082 \
-      influxdb:latest
+      influxdb:1.8
 ```
 
 ## Running NuoDB Collector
