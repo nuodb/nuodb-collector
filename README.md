@@ -133,7 +133,7 @@ docker run -d --name nuocd-sm \
       --hostname <hostname> \
       --network nuodb-net \
       --env INFLUXURL=http://<hostinflux>:8086 \
-      --env NUOCMD_API_SERVER=https://<nuoadmin>:8888 \
+      --env NUOCMD_API_SERVER=<nuoadmin>:8888 \
       --pid container:<enginecontainer> \
       nuodb/nuodb-collector:latest
 ```
