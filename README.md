@@ -113,20 +113,9 @@ Databases:
     [TE] test-te-1/172.20.0.6:48006 [start_id = 1] [server_id = nuoadmin1] [pid = 39] [node_id = 2] [last_ack =  0.14] MONITORED:RUNNING
 ```
 
-### InfluxDB
+### NuoDB Insights
 
-*NuoDB Collector only supports InfluxDB version 1.X.*
-
-The collector assumes that an InfluxDB instance is running.
-Start InfluxDB with Docker:
-
-```
-docker run -d --name influxdb \
-      --network nuodb-net \
-      -p 8086:8086 \
-      -p 8082:8082 \
-      influxdb:1.8
-```
+If you haven't already, [start InfluxDB and Grafana for NuoDB Insights](https://github.com/nuodb/nuodb-insights#starting-nuodb-insights). 
 
 ## Running NuoDB Collector
 
@@ -144,7 +133,7 @@ docker run -d --name nuocd-sm \
       --hostname <hostname> \
       --network nuodb-net \
       --env INFLUXURL=http://<hostinflux>:8086 \
-      --env NUOCMD_API_SERVER=https://<nuoadmin>:8888 \
+      --env NUOCMD_API_SERVER=<nuoadmin>:8888 \
       --pid container:<enginecontainer> \
       nuodb/nuodb-collector:latest
 ```
