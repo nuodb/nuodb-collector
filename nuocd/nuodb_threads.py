@@ -8,6 +8,7 @@ import sys
 import time
 from datetime import datetime
 
+import six
 from six import print_
 
 
@@ -97,7 +98,7 @@ if __name__ == "__main__":
         process_begin_time = datetime.now()
         try:
             raw_pgrep = subprocess.check_output(["pgrep", '^{}$'.format(PROCESS_NAME)])
-            pids = raw_pgrep.split()
+            pids = six.ensure_text(raw_pgrep).split()
             for pid in pids:
                 if pid not in known_nuodb_processes.keys():
                     proc = NuoDBProcess(pid)

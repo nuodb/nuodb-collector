@@ -62,7 +62,7 @@ class Monitor:
             if self._lastnow:
                 # output delta
                 timedelta = int((now - self._lastnow).total_seconds() * 1000000)
-                for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.iteritems():
+                for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.items():
                     if name in ostalls:
                         numLocks -= ostalls[name][0]
                         numUnlocks -= ostalls[name][1]
@@ -77,6 +77,6 @@ class Monitor:
                 timedelta = int((now - self._lastnow).total_seconds() * 1000000)
             else:
                 timedelta = 0
-            for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.iteritems():
+            for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.items():
                 print_(Monitor.format % (ntime, nodeId, startId, hostname, pid, dbname, timedelta, total, name,
                                          numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime))

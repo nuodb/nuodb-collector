@@ -11,7 +11,9 @@ import traceback
 from datetime import datetime
 
 from pynuoadmin import nuodb_mgmt
+import six
 from six import print_
+from requests.exceptions import ConnectionError, Timeout
 
 
 def get_admin_conn(pid):
@@ -114,11 +116,25 @@ parser.add_option('-i',
                   default=10,
                   type=int,
                   help='interval in seconds between measurements.')
+parser.add_option('-q',
+                  '--query-admin',
+                  dest='query_admin',
+                  default=False,
+                  action='store_true',
+                  help='interval in seconds between measurements.')
+
 (options, module_args) = parser.parse_args()
 
 os.environ['NUOCMD_CLIENT_KEY'] = options.client_key
 os.environ['NUOCMD_API_SERVER'] = options.api_server
 os.environ['NUOCMD_VERIFY_SERVER'] = options.verify_server
+
+def check_true(var):
+    bool_value = var.lower()
+    return bool_value == 'true' or bool_value == '1' or bool_value == 'yes'
+
+query_admin = options.query_admin or check_true(os.environ.get('NUOCD_USE_NUOADMIN','false'))
+
 
 if len(module_args) == 0:
     parser.print_help(sys.stderr)
@@ -137,22 +153,38 @@ while True:
     try:
         # only interested in nuodb process on localhost, and don't
         # want to make nuoadmin rest call unless a new process is discovered.
-        _processes = subprocess.check_output(["pgrep", "^nuodb$"])
-        pids = _processes.split()
+
+        if not query_admin:
+            _processes = subprocess.check_output(["pgrep", "^nuodb$"])
+            pids = six.ensure_text(_processes).split()
+        else:
+            # if query admin, only do so if nuodb has not been found.
+            if len(running_local_processes) == 0:
+                pids = [ -1 ]
+            else:
+                pids = [ ]
 
         # check if found processes are already known or new
         for pid in pids:
             if pid not in running_local_processes:
-                print_("%s: Found new NuoDB process with pid (%s). Attempting to start collection now." % (module, pid), file=sys.stderr)
-                filter_by = dict(hostname=options.hostname, pid=str(pid))
+                filter_by = dict(hostname=options.hostname)
+                if not query_admin:
+                    print_("%s: Found new NuoDB process with pid (%s). Attempting to start collection now." % (module, pid), file=sys.stderr)
+                    filter_by ['pid'] = pid
                 conn = get_admin_conn(pid)
                 ps = conn.get_processes(**filter_by)
                 if ps:
-                    local_process = ps[0]
+
+                    local_process = list(ps)[0]
+                    pid = str(local_process.pid)
                     running_local_processes[pid] = Monitor(local_process, conn, True, module_args)
                     print_("%s: Collection of NuoDB process with pid (%s) successfully established." % (module, pid), file=sys.stderr)
                 else:
                     print_("%s: No known running processes found in NuoDB domain. Ignoring NuoDB process with pid (%s)" % (module, pid), file=sys.stderr)
+
+        # if query_admin then only one process, and it's pid was found by get_admin_conn above.
+        if query_admin:
+            pids = list(running_local_processes)
 
         # check if any known processes are no longer available
         for key in list(running_local_processes):
@@ -182,14 +214,24 @@ while True:
                 del running_local_processes[key]
 
     except subprocess.CalledProcessError:
+        # no nuodb process found
         pass
     except KeyboardInterrupt:
+        # ctlr-c exit
         for key in list(running_local_processes):
             del running_local_processes[key]
         raise
-    except:
-        print_('unknown exception', file=sys.stderr)
-        traceback.print_exc()
+    except ConnectionError:
+        # admin not ready.  this should already be empty.
+        for key in list(running_local_processes):
+            del running_local_processes[key]
+        pass
+    except Exception as e:
+        # not sure, restart monitors next loop.
+        print_('unknown exception (%s): closing all monitors' % (e,), file=sys.stderr)
+        for key in list(running_local_processes):
+            del running_local_processes[key]
+        #traceback.print_exc()
     finally:
         sys.stdout.flush()
         sys.stderr.flush()

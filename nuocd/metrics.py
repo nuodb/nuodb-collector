@@ -147,7 +147,6 @@ class Monitor:
         #self._interval = 1
 
         self.__session = conn.monitor_process(self._process.start_id)
-
     def execute_query(self):
         _, xml_msg = next(self.__session)
         if xml_msg.tag == 'Items':
@@ -211,6 +210,6 @@ class Monitor:
                 results.append("%s,%s %s %s000000" % (k, tags, rvalues, timestamp))
 
         summary_map = summary(values)
-        for key, rvalues in summary_map.iteritems():
+        for key, rvalues in summary_map.items():
             results.append("%s,%s %s %s000000" % (key, tags, rvalues, timestamp))
         return results

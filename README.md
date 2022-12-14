@@ -183,7 +183,7 @@ These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platfor
 
 ### 1) Install dependencies
 
-NuoDB Collector requires Python 2.7, which comes installed on most distributions.
+NuoDB Collector requires Python 2.7 or 3, which comes installed on most distributions.
 
 The instructions below use `pip` to install Python dependencies. `pip` can be installed on RedHat or CentOS as follows:
 
@@ -201,12 +201,24 @@ sudo yum localinstall telegraf-1.15.2-1.x86_64.rpm
 
 ### 3) Download and install NuoDB Collector
 
+Python2:
 ```
 git clone https://github.com/nuodb/nuodb-collector.git
 cd nuodb-collector
-pip install -r requirements.txt
+mkdir nuocd/pylib
+pip2 install -r requirements.txt -t nuocd/pylib
 sudo cp -r nuocd /opt/
 ```
+
+Python3:
+```
+git clone https://github.com/nuodb/nuodb-collector.git
+cd nuodb-collector
+mkdir nuocd/pylib
+pip3 install -r requirements3.txt -t nuocd/pylib
+sudo cp -r nuocd /opt/
+```
+
 
 ## Configuration
 
@@ -221,7 +233,7 @@ sudo cp bin/nuocd /usr/local/bin/nuocd
 sudo chown -R telegraf.telegraf /etc/telegraf
 cat <<EOF >/etc/default/telegraf
 INFLUXURL=http://<hostinflux>:8086
-PYTHONPATH=/opt/nuocd/pylib
+PYTHONPATH=/opt/nuocd/pylib:/opt/nuodb/etc/python/site-packages
 EOF
 ```
 

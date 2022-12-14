@@ -19,5 +19,5 @@ if __name__ == '__main__':
     import logging
 
     logging.getLogger('werkzeug').disabled = True
-    os.environ['WERKZEUG_RUN_MAIN'] = 'true'
-    app.run(debug=False)
+    #os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+    app.run(debug=True, use_reloader=False)
