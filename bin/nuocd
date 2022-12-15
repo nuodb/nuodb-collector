@@ -20,5 +20,6 @@ fi
 : ${NUOCD_HOME:=/opt/nuocd}
 
 
-export PYTHONPATH=${PYTHONPATH}:${NUOCD_HOME}/pylib:${NUODB_HOME}/etc/python/site-packages
+export PYTHONPATH=${PYTHONPATH:+$PYTHONPATH:}${NUOCD_HOME}/pylib
+echo $PYTHONPATH
 exec "$_python" "$@"

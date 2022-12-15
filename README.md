@@ -183,7 +183,7 @@ These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platfor
 
 ### 1) Install dependencies
 
-NuoDB Collector requires Python 2.7 or 3, which comes installed on most distributions.
+NuoDB Collector requires Python 2.7 or > 3.6, which comes installed on most distributions.
 
 The instructions below use `pip` to install Python dependencies. `pip` can be installed on RedHat or CentOS as follows:
 
@@ -195,30 +195,28 @@ sudo yum install -y python-pip
 ### 2) Download and install `telegraf`
 
 ```
-wget https://dl.influxdata.com/telegraf/releases/telegraf-1.15.2-1.x86_64.rpm
-sudo yum localinstall telegraf-1.15.2-1.x86_64.rpm
+# influxdb.key GPG Fingerprint: 05CE15085FC09D18E99EFB22684A14CF2582E0C5
+cat << 'EOF' | sudo tee /etc/yum.repos.d/influxdata.repo
+[influxdata]
+name = InfluxData Repository - Stable
+baseurl = https://repos.influxdata.com/stable/$basearch/main
+enabled = 1
+gpgcheck = 1
+gpgkey = https://repos.influxdata.com/influxdb.key
+EOF
+sudo yum install telegraf
 ```
 
 ### 3) Download and install NuoDB Collector
 
-Python2:
 ```
 git clone https://github.com/nuodb/nuodb-collector.git
 cd nuodb-collector
-mkdir nuocd/pylib
-pip2 install -r requirements.txt -t nuocd/pylib
+pyver=$(python -c 'import sys;print(sys.version_info[0])')
+python -m pip install -r requirements${pyver}.txt -t nuocd/pylib --no-cache
 sudo cp -r nuocd /opt/
+sudo cp bin/nuocd /usr/local/bin
 ```
-
-Python3:
-```
-git clone https://github.com/nuodb/nuodb-collector.git
-cd nuodb-collector
-mkdir nuocd/pylib
-pip3 install -r requirements3.txt -t nuocd/pylib
-sudo cp -r nuocd /opt/
-```
-
 
 ## Configuration
 
