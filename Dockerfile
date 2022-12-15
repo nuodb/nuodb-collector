@@ -2,7 +2,7 @@ FROM python:2.7.18-slim-stretch
 
 COPY  --chown=1000:0 nuocd /opt/nuocd
 WORKDIR /opt/nuocd
-COPY --chown=1000:0 requirements.txt ./
+COPY --chown=1000:0 requirements2.txt ./requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt && \
     apt-get update -y && \
