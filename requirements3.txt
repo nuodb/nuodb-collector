@@ -1,7 +1,0 @@
-testresources==2.0.1
-requests >= 2.27.1
-PyYAML >= 5.4.1
-pynuodb >= 2.5.1
-#pynuoadmin >= 2.0.0
-Flask >= 1.1.2
-six >= 1.14.0

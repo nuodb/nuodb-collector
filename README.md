@@ -212,8 +212,7 @@ sudo yum install telegraf
 ```
 git clone https://github.com/nuodb/nuodb-collector.git
 cd nuodb-collector
-pyver=$(python -c 'import sys;print(sys.version_info[0])')
-python -m pip install -r requirements${pyver}.txt -t nuocd/pylib --no-cache
+python -m pip install -r requirements.txt -t nuocd/pylib --no-cache
 sudo cp -r nuocd /opt/
 sudo cp bin/nuocd /usr/local/bin/nuocd
 ```
