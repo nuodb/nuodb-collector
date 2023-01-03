@@ -9,8 +9,16 @@ die () { echo "$*"; exit 1; }
 
 _python=${PYTHON}
 if test -z "$_python"; then
-  _python=$(command -v python2.7) || _python=$(command -v python2) || _python=$(command -v python)  \
-  || die "Python must be installed"
+    _python=$(command -v python3) \
+	|| _python=$(command -v python2.7) \
+	|| _python=$(command -v python2) \
+	|| _python=$(command -v python)  \
+	|| die "Python must be installed"
 fi
 
+: ${NUODB_HOME:=/opt/nuodb}
+: ${NUOCD_HOME:=/opt/nuocd}
+
+
+export PYTHONPATH=${PYTHONPATH:+$PYTHONPATH:}${NUOCD_HOME}/pylib
 exec "$_python" "$@"

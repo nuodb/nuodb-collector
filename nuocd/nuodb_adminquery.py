@@ -11,6 +11,7 @@ import traceback
 from datetime import datetime
 
 from pynuoadmin import nuodb_mgmt
+import six
 from six import print_
 
 
@@ -137,8 +138,9 @@ while True:
     try:
         # only interested in nuodb process on localhost, and don't
         # want to make nuoadmin rest call unless a new process is discovered.
+
         _processes = subprocess.check_output(["pgrep", "^nuodb$"])
-        pids = _processes.split()
+        pids = six.ensure_text(_processes).split()
 
         # check if found processes are already known or new
         for pid in pids:
@@ -148,7 +150,8 @@ while True:
                 conn = get_admin_conn(pid)
                 ps = conn.get_processes(**filter_by)
                 if ps:
-                    local_process = ps[0]
+
+                    local_process = list(ps)[0]
                     running_local_processes[pid] = Monitor(local_process, conn, True, module_args)
                     print_("%s: Collection of NuoDB process with pid (%s) successfully established." % (module, pid), file=sys.stderr)
                 else:
@@ -182,8 +185,10 @@ while True:
                 del running_local_processes[key]
 
     except subprocess.CalledProcessError:
+        # no nuodb process found
         pass
     except KeyboardInterrupt:
+        # ctlr-c exit
         for key in list(running_local_processes):
             del running_local_processes[key]
         raise
