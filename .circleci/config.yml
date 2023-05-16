@@ -1,0 +1,43 @@
+version: 2.1
+
+commands:
+  nuodb_collector_command:
+    steps:
+      - checkout
+      - run:
+          name : Run dependencies
+          command: ./tests/ci/determine_and_run_tests.sh
+      - run:
+          name : Take a nap
+          command: |
+            sleep 15
+      - run:
+          name : Configure and run tests
+          command: |
+            pip install -r test_requirements.txt
+            python ./run_tests.py
+            echo "Done"
+
+jobs:
+  build_n_run_docker:
+    machine:
+      image: ubuntu-2204:2023.04.2
+    steps:
+      - nuodb_collector_command
+    environment:
+      TEST_SUITE: Docker
+    resource_class: medium
+
+  build_n_run_bare_metal:
+    machine:
+      image: ubuntu-2204:2023.04.2
+    steps:
+      - nuodb_collector_command
+    environment:
+      TEST_SUITE: "Bare Metal"
+
+workflows:
+  build-project:
+    jobs:
+      - build_n_run_docker
+      # - build_n_run_bare_metal
