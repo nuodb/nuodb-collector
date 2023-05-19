@@ -15,8 +15,10 @@ commands:
           name : Configure and run tests
           command: |
             pip install -r test_requirements.txt
-            python ./run_tests.py
+            pytest --junitxml=test_results/result.xml
             echo "Done"
+      - store_test_results:
+          path: test_results
 
 jobs:
   build_n_run_docker:
@@ -35,6 +37,7 @@ jobs:
       - nuodb_collector_command
     environment:
       TEST_SUITE: "Bare Metal"
+    resource_class: medium
 
 workflows:
   build-project:

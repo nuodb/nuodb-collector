@@ -12,8 +12,9 @@ docker-compose up -d
 while [ "$(docker container inspect -f '{{.State.Running}}' "$(docker ps -f name=nuoadmin -q)")" = "false" ]
 do
     sleep 1
-    echo "Sleep for a second"
+    echo "Waiting for the nuodadmin container to be up"
 done
 
+docker exec "$(docker container ls -f name=nuoadmin -q)" nuocmd check servers --check-connected --check-converged --timeout 300
 
 docker exec "$(docker container ls -f name=nuoadmin -q)" nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300
