@@ -10,11 +10,11 @@ commands:
       - run:
           name : Take a nap
           command: |
-            sleep 15
+            sleep 120
       - run:
           name : Configure and run tests
           command: |
-            pip install -r test_requirements.txt
+            pip3 install -r test_requirements.txt
             pytest --junitxml=test_results/result.xml
             echo "Done"
       - store_test_results:
@@ -28,6 +28,15 @@ jobs:
       - nuodb_collector_command
     environment:
       TEST_SUITE: Docker
+      INFLUXDB_TOKEN: quickbrownfoxjumpsoveralazydog
+      INFLUXDB_ORG: nuodb
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: nuodb
+      DOCKER_INFLUXDB_INIT_PASSWORD: helloworld
+      DOCKER_INFLUXDB_INIT_ORG: nuodb
+      DOCKER_INFLUXDB_INIT_RETENTION: 1w
+      DOCKER_INFLUXDB_INIT_BUCKET: telegraf
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: quickbrownfoxjumpsoveralazydog
     resource_class: medium
 
   build_n_run_bare_metal:

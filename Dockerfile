@@ -7,6 +7,7 @@ COPY --chown=1000:0 requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt && \
     apt-get update -y && \
     apt-get install -y gettext-base apt-transport-https curl gnupg procps && \
+    # influxdata-archive_compat.key GPG Fingerprint: 9D539D90D3328DC7D6C8D3B9D8FF8E1F7DF8B07E
     curl -s https://repos.influxdata.com/influxdata-archive_compat.key | apt-key add - && \
     . /etc/os-release && \
     echo "deb https://repos.influxdata.com/debian stretch stable" > /etc/apt/sources.list.d/influxdb.list && \
