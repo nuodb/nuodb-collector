@@ -120,7 +120,6 @@ parser.add_option('-i',
 os.environ['NUOCMD_CLIENT_KEY'] = options.client_key
 os.environ['NUOCMD_API_SERVER'] = options.api_server
 os.environ['NUOCMD_VERIFY_SERVER'] = options.verify_server
-
 if len(module_args) == 0:
     parser.print_help(sys.stderr)
     sys.exit(1)
