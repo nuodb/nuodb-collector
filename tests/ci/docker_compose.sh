@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export NUOVERSION=5.0.1-2
+export NUOVERSION=4.0.7.1
 export DOCKER_IMAGE=nuodb/nuodb-ce:$NUOVERSION
 
 docker pull $DOCKER_IMAGE
