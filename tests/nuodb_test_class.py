@@ -43,11 +43,9 @@ def getClient():
      return client
 
 def getMeasurenment(client, bucket):
-    query = f"""
-    import \"influxdata/influxdb/schema\"
+    query = f"""import "influxdata/influxdb/schema"
+    schema.measurements(bucket: "{bucket}")"""
 
-    schema.measurements(bucket: \"{bucket}\")
-    """
     query_api = client.query_api()
     tables = query_api.query(query=query)
 
@@ -57,7 +55,7 @@ def getMeasurenment(client, bucket):
 
 
 class NuoDBTelegrafTestClass(unittest.TestCase):
-    database_name = None
+    bucket_name = None
 
     @classmethod
     def isDatabaseRunning(cls, client, database):
@@ -74,7 +72,7 @@ class NuoDBTelegrafTestClass(unittest.TestCase):
     def setUpClass(cls):
         # ensure that the database exists
         client = getClient()
-        assert_await(lambda: cls.isDatabaseRunning(client, cls.database_name), timeout=60)
+        assert_await(lambda: cls.isDatabaseRunning(client, cls.bucket_name), timeout=60)
     
     def assertMeasurementPresent(self, client, bucket, measurement):
         measurements = getMeasurenment(client, bucket)
@@ -82,17 +80,17 @@ class NuoDBTelegrafTestClass(unittest.TestCase):
 
     def assertMeasurementCountGt0(self, client, bucket, measurement):
         query_api = client.query_api()
-        query = f"""from(bucket: \"{bucket}\")
+        query = f"""from(bucket: "{bucket}")
             |> range(start: -5m)  
-            |> filter(fn: (r) => r[\"_measurement\"] == \"{measurement}\")"""
+            |> filter(fn: (r) => r["_measurement"] == "{measurement}")"""
         result = query_api.query(query)
         self.assertGreater(len(result),0)
 
     def assertTraceInMeasurement(self, client, bucket, measurement, trace):
         query_api = client.query_api()
-        query = f"""from(bucket: \"{bucket}\")
+        query = f"""from(bucket: "{bucket}")
             |> range(start: -5m)  
-            |> filter(fn: (r) => r[\"_measurement\"] == \"{measurement}\")
-            |> filter(fn: (r) => r[\"msg_trace_metric\"] == \"{trace}\")"""
+            |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+            |> filter(fn: (r) => r["msg_trace_metric"] == \"{trace}")"""
         result = query_api.query(query)
         self.assertGreater(len(result),0, f"Measurement {measurement} does not contain an trace {trace}")

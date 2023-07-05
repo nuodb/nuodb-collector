@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/sh
 set -e
 
 influx bucket create --name nuodb_internal --retention 7d

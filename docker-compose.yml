@@ -1,14 +1,14 @@
 version: "3.3"
 services:
   nuoadmin1:
-    image: nuodb/nuodb-ce:latest
+    image: $DOCKER_IMAGE
     environment:
       NUODB_DOMAIN_ENTRYPOINT: nuoadmin1
     hostname: nuoadmin1
     restart: unless-stopped
     command: ["nuoadmin"]
   sm:
-    image: nuodb/nuodb-ce:latest
+    image: $DOCKER_IMAGE
     hostname: sm
     restart: unless-stopped
     environment:
@@ -19,7 +19,7 @@ services:
         "--dba-user", "dba", "--dba-password", "goalie",
         "--servers-ready-timeout", "60"]
   te:
-    image: nuodb/nuodb-ce:latest
+    image: $DOCKER_IMAGE
     hostname: te
     restart: unless-stopped
     environment:
@@ -30,7 +30,7 @@ services:
     command: ["nuodocker", "start", "te", "--db-name", "hockey", "--server-id", "nuoadmin1",
           "--servers-ready-timeout", "60"]
   influxdb:
-    image: influxdb:2.7.1
+    image: $DOCKER_INFLUX_IMAGE
     ports:
       # The API for InfluxDB is served on port 8086
       - "8086:8086"
