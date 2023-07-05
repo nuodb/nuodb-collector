@@ -10,7 +10,7 @@ commands:
       - run:
           name : Take a nap
           command: |
-            sleep 120
+            sleep 15
       - run:
           name : Configure and run tests
           command: |

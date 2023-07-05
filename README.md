@@ -58,6 +58,18 @@ git clone git@github.com:nuodb/nuodb-collector.git
 cd nuodb-collector
 ```
 
+Create a .env file in root folder and add
+
+```
+DOCKER_INFLUXDB_INIT_MODE=setup
+DOCKER_INFLUXDB_INIT_USERNAME=[your_value]
+DOCKER_INFLUXDB_INIT_PASSWORD=[your_value]
+DOCKER_INFLUXDB_INIT_ORG=[your_value]
+DOCKER_INFLUXDB_INIT_RETENTION=[your_value]
+DOCKER_INFLUXDB_INIT_BUCKET=[your_value]
+DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[your_value]
+```
+
 Then run `docker-compose up` to start the processes specified in the Docker Compose file:
 
 ```

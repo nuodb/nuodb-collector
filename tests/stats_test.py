@@ -1,4 +1,4 @@
-from .nuodb_test_class import *
+from nuodb_test_class import *
 
 
 class TestNuoDB(NuoDBTelegrafTestClass):
