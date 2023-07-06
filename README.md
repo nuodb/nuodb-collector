@@ -62,13 +62,15 @@ Create a .env file in root folder and add
 
 ```
 DOCKER_INFLUXDB_INIT_MODE=setup
-DOCKER_INFLUXDB_INIT_USERNAME=[your_value]
-DOCKER_INFLUXDB_INIT_PASSWORD=[your_value]
-DOCKER_INFLUXDB_INIT_ORG=[your_value]
-DOCKER_INFLUXDB_INIT_RETENTION=[your_value]
-DOCKER_INFLUXDB_INIT_BUCKET=[your_value]
-DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[your_value]
+DOCKER_INFLUXDB_INIT_USERNAME=[your_username]
+DOCKER_INFLUXDB_INIT_PASSWORD=[your_password]
+DOCKER_INFLUXDB_INIT_ORG=[name_of_organization]
+DOCKER_INFLUXDB_INIT_RETENTION=[retention_time]
+DOCKER_INFLUXDB_INIT_BUCKET=[your_database_name]
+DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[your_secret_key]
 ```
+
+To know more about these env variables checkout [docs](https://hub.docker.com/_/influxdb#Automated%20Setup:~:text=to%20the%20host.-,Automated%20Setup,-The%20InfluxDB%20image)
 
 Then run `docker-compose up` to start the processes specified in the Docker Compose file:
 
@@ -139,13 +141,18 @@ The following value replacement must be done to start a NuoDB Collector containe
 - Replace the `<hostinflux>` placeholder with the URL of a running InfluxDB container. In our example, it will be `influxdb`.
 - Replace the `<nuoadmin>` placeholder with the URL of a running NuoDB admin container. In our example, it will be `nuoadmin1`.
 - Replace the `<enginecontainer>` placeholder with the URL of a running NuoDB Engine container. In our example, it will be `test-sm-1`.
-
+- Replace the `<influxdb_token>` placeholder with influx api token. To know more about it go to this [link](https://docs.influxdata.com/influxdb/cloud/security/tokens)
+- Replace the `<influxdb_bucket_name>` placeholder with initial bucket name. To know more about the bucket visit [link](https://docs.influxdata.com/influxdb/v2.0/organizations/buckets/)
+- Replace the `<name_of_organization>` placeholder with the name of organization. To know more about the organization visit [link](https://docs.influxdata.com/influxdb/v2.0/organizations/)
 ```
 docker run -d --name nuocd-sm \
       --hostname <hostname> \
       --network nuodb-net \
       --env INFLUXURL=http://<hostinflux>:8086 \
       --env NUOCMD_API_SERVER=<nuoadmin>:8888 \
+      --env INFLUXDB_TOKEN=<influxdb_token> \
+      --env INFLUXDB_BUCKET=<influxdb_bucket_name> \
+      --env INFLUXDB_ORG=<name_of_organization>
       --pid container:<enginecontainer> \
       nuodb/nuodb-collector:latest
 ```

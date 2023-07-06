@@ -28,15 +28,6 @@ jobs:
       - nuodb_collector_command
     environment:
       TEST_SUITE: Docker
-      INFLUXDB_TOKEN: quickbrownfoxjumpsoveralazydog
-      INFLUXDB_ORG: nuodb
-      DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: nuodb
-      DOCKER_INFLUXDB_INIT_PASSWORD: helloworld
-      DOCKER_INFLUXDB_INIT_ORG: nuodb
-      DOCKER_INFLUXDB_INIT_RETENTION: 1w
-      DOCKER_INFLUXDB_INIT_BUCKET: telegraf
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: quickbrownfoxjumpsoveralazydog
     resource_class: medium
 
   build_n_run_bare_metal:

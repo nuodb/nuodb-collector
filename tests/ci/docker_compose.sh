@@ -5,9 +5,18 @@ export DOCKER_IMAGE=nuodb/nuodb-ce:$NUOVERSION
 export COMPOSE_INLFUXDB_VERSION=2.7
 export DOCKER_INFLUX_IMAGE=influxdb:$COMPOSE_INLFUXDB_VERSION
 
+# env variables required to setup influxdb username and password
+export DOCKER_INFLUXDB_INIT_MODE=setup
+export DOCKER_INFLUXDB_INIT_USERNAME=nuodb
+export DOCKER_INFLUXDB_INIT_PASSWORD=helloworld
+export DOCKER_INFLUXDB_INIT_ORG=nuodb
+export DOCKER_INFLUXDB_INIT_RETENTION=1w
+export DOCKER_INFLUXDB_INIT_BUCKET=telegraf
+export DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=quickbrownfoxjumpsoveralazydog
+
 docker pull $DOCKER_IMAGE
 
-docker-compose up -d
+docker-compose up
 
 #check if nuoadmin is up
 
