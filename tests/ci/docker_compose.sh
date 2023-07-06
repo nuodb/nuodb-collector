@@ -16,7 +16,7 @@ export DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=quickbrownfoxjumpsoveralazydog
 
 docker pull $DOCKER_IMAGE
 
-docker-compose up
+docker-compose up -d
 
 #check if nuoadmin is up
 
