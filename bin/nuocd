@@ -21,4 +21,5 @@ fi
 
 
 export PYTHONPATH=${PYTHONPATH:+$PYTHONPATH:}${NUOCD_HOME}/pylib
+export PYTHONUNBUFFERED=1
 exec "$_python" "$@"

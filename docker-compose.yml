@@ -89,15 +89,3 @@ services:
       INFLUXDB_BUCKET: $DOCKER_INFLUXDB_INIT_BUCKET
       INFLUXDB_ORG: $DOCKER_INFLUXDB_INIT_ORG
     pid: 'service:nuoadmin1'
-
-  ycsb-demo:
-    image: nuodb/ycsb:latest
-    depends_on:
-      - te
-      - nuocd-te
-    environment:
-      PEER_ADDRESS: nuoadmin1
-      DB_NAME: hockey
-      DB_USER: dba
-      DB_PASSWORD: goalie
-    command: ["/driver/startup.sh"]
