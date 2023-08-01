@@ -61,12 +61,13 @@ class Monitor:
                                           , user='dba'
                                           , password="dba"
                                           , options=options)
-        self._cursor = self._connection.cursor()
+        self._cursor = None
         self._last = self.__get_latest()
         
     def __get_latest(self):
         results = {}
         try:
+            self._cursor = self._connection.cursor()
             self._cursor.execute(sql)
             coltypes = [ (col[0].lower(),nuodb_type(col[1])) for col in self._cursor.description ]
             columns = [ name for name,_ in coltypes ]
@@ -75,6 +76,9 @@ class Monitor:
                 stmt._coltypes = coltypes
                 results[stmt.id] = stmt
         finally:
+            if self._cursor is not None:
+                self._connection.commit()
+            self._cursor = None
             pass
         return results
 
