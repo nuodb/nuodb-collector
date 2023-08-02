@@ -1,12 +1,13 @@
+import os
 import time
 import unittest
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient
 
 
 def extract_names(l):
     names = []
     for o in l:
-        names.append(o["name"])
+        names.append(o.name)
 
     return names
 
@@ -34,15 +35,34 @@ def assert_await(fxn, timeout=120, interval=10):
 
     if last_assert:
         raise last_assert
+    
+def getClient():
+     influxToken = os.getenv("INFLUXDB_TOKEN", 'none')
+     org = os.getenv("INFLUXDB_ORG", "nuodb")
+     client = InfluxDBClient(url='http://localhost:8086', token=influxToken, org=org)
+     return client
+
+def getMeasurenment(client, bucket):
+    query = f"""import "influxdata/influxdb/schema"
+    schema.measurements(bucket: "{bucket}")"""
+
+    query_api = client.query_api()
+    tables = query_api.query(query=query)
+
+    # Flatten output tables into list of measurements
+    measurements = [row.values["_value"] for table in tables for row in table]
+    return measurements
 
 
 class NuoDBTelegrafTestClass(unittest.TestCase):
-    database_name = None
+    bucket_name = None
 
     @classmethod
     def isDatabaseRunning(cls, client, database):
-        databases = extract_names(client.get_list_database())
-
+        buckets_api = client.buckets_api()
+        buckets = buckets_api.find_buckets().buckets
+        databases = extract_names(buckets)
+        
         if database not in databases:
             raise EnvironmentError("%s database not created" % database)
 
@@ -51,28 +71,26 @@ class NuoDBTelegrafTestClass(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # ensure that the database exists
-        client = InfluxDBClient('localhost', 8086)
-        assert_await(lambda: cls.isDatabaseRunning(client, cls.database_name), timeout=60)
-
-    def assertMeasurementPresent(self, client, measurement):
-        measurements = extract_names(client.get_list_measurements())
-
-        # verify a random set of stats
+        client = getClient()
+        assert_await(lambda: cls.isDatabaseRunning(client, cls.bucket_name), timeout=60)
+    
+    def assertMeasurementPresent(self, client, bucket, measurement):
+        measurements = getMeasurenment(client, bucket)
         self.assertIn(measurement, measurements)
 
-    def assertMeasurementCountGt0(self, client, measurement):
-        rs = client.query('select count(*) from %s' % measurement)
-        points = list(rs.get_points(measurement=measurement))
-        self.assertGreater(points[0]["count_raw"], 0)
+    def assertMeasurementCountGt0(self, client, bucket, measurement):
+        query_api = client.query_api()
+        query = f"""from(bucket: "{bucket}")
+            |> range(start: -5m)  
+            |> filter(fn: (r) => r["_measurement"] == "{measurement}")"""
+        result = query_api.query(query)
+        self.assertGreater(len(result),0)
 
-    def assertTraceInMeasurement(self, client, measurement, trace):
-        rs = client.query("select * from %s" % measurement)
-        points = list(rs.get_points(measurement=measurement))
-        traces = extract_traces(points)
-
-        self.assertIn(trace, traces)
-
-    def assertMeasurementNotEmpty(self, client, measurement):
-        rs = client.query("select * from %s" % measurement)
-        points = list(rs.get_points(measurement=measurement))
-        self.assertGreater(len(points), 0, "Measurement %s does not contain any points" % measurement)
+    def assertTraceInMeasurement(self, client, bucket, measurement, trace):
+        query_api = client.query_api()
+        query = f"""from(bucket: "{bucket}")
+            |> range(start: -5m)  
+            |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+            |> filter(fn: (r) => r["msg_trace_metric"] == \"{trace}")"""
+        result = query_api.query(query)
+        self.assertGreater(len(result),0, f"Measurement {measurement} does not contain an trace {trace}")

@@ -30,11 +30,21 @@ services:
     command: ["nuodocker", "start", "te", "--db-name", "hockey", "--server-id", "nuoadmin1",
           "--servers-ready-timeout", "60"]
   influxdb:
-    image: influxdb:1.8
+    image: $DOCKER_INFLUX_IMAGE
     ports:
       # The API for InfluxDB is served on port 8086
       - "8086:8086"
       - "8082:8082"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE
+      - DOCKER_INFLUXDB_INIT_USERNAME
+      - DOCKER_INFLUXDB_INIT_PASSWORD
+      - DOCKER_INFLUXDB_INIT_ORG
+      - DOCKER_INFLUXDB_INIT_RETENTION
+      - DOCKER_INFLUXDB_INIT_BUCKET
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+    volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
   nuocd-sm:
     build: .
     restart: unless-stopped
@@ -46,6 +56,10 @@ services:
       INFLUXURL: http://influxdb:8086
       NUOCMD_API_SERVER: nuoadmin1:8888
       NUOCD_HOSTNAME: sm
+      INFLUXDB_TOKEN: $DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      INFLUXDB_BUCKET: $DOCKER_INFLUXDB_INIT_BUCKET
+      INFLUXDB_ORG: $DOCKER_INFLUXDB_INIT_ORG
+      PYTHONUNBUFFERED: '1'
     pid: 'service:sm'
   nuocd-te:
     build: .
@@ -58,6 +72,10 @@ services:
       INFLUXURL: http://influxdb:8086
       NUOCMD_API_SERVER: nuoadmin1:8888
       NUOCD_HOSTNAME: te
+      INFLUXDB_TOKEN: $DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      INFLUXDB_BUCKET: $DOCKER_INFLUXDB_INIT_BUCKET
+      INFLUXDB_ORG: $DOCKER_INFLUXDB_INIT_ORG
+      PYTHONUNBUFFERED: '1'
     pid: 'service:te'
   nuocd-admin1:
     build: .
@@ -69,4 +87,8 @@ services:
       INFLUXURL: http://influxdb:8086
       NUOCMD_API_SERVER: https://nuoadmin1:8888
       NUOCD_HOSTNAME: nuoadmin1
+      INFLUXDB_TOKEN: $DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      INFLUXDB_BUCKET: $DOCKER_INFLUXDB_INIT_BUCKET
+      INFLUXDB_ORG: $DOCKER_INFLUXDB_INIT_ORG
+      PYTHONUNBUFFERED: '1'
     pid: 'service:nuoadmin1'
