@@ -2,34 +2,35 @@
 
 # NuoDB Collector
 
-[![Build Status](https://travis-ci.org/nuodb/nuodb-collector.svg?branch=master)](https://travis-ci.org/nuodb/nuodb-collector)
+[![nuodb](https://circleci.com/gh/nuodb/nuodb-collector.svg?style=svg)](https://circleci.com/gh/nuodb/nuodb-collector)
 
 # Introduction
 
 Most modern application monitoring systems consist of the following 3
 core components:
 
-* Collector             — daemon(s) to gather metrics such as this repository
-* Time Series database  — for storage of real-time, high volume metrics (e.g. InfluxDB, Prometheus, LogStash)
-* Query & Visualization — that enables visual monitoring and root cause analysis (e.g. Grafana)
+- Collector — daemon(s) to gather metrics such as this repository
+- Time Series database — for storage of real-time, high volume metrics (e.g. InfluxDB, Prometheus, LogStash)
+- Query & Visualization — that enables visual monitoring and root cause analysis (e.g. Grafana)
 
 NuoDB Collector utilizes a popular open-source collector - `telegraf`.
 It's designed to be used alongside a NuoDB engine process to collect metrics from the engine and publish those metrics to a time series database.
 
 Built into this container are 4 input plugins to collect metrics from the NuoDB engine:
 
-1.  `metrics` - collects the [Engine Metrics](https://doc.nuodb.com/nuodb/4.0.x/reference-information/metrics-published-by-database-processes/)  on a
+1.  `metrics` - collects the [Engine Metrics](https://doc.nuodb.com/nuodb/4.0.x/reference-information/metrics-published-by-database-processes/) on a
     regular 10s interval.
 2.  `msgtrace` - collects internal NuoDB message tracing data on a regular 30s interval.
 3.  `synctrace` - collects internal NuoDB lock tracing data on a regular 30s interval.
 4.  `threads` - extends the [Telegraf ProcStat Input plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat) with per-thread data.
-Collects host machine resource consumption statistics on a regular 10s interval.
+    Collects host machine resource consumption statistics on a regular 10s interval.
 
 To setup NuoDB Insights visual monitoring which uses the NuoDB Collector, follow the instructions on the [NuoDB Insights](https://github.com/nuodb/nuodb-insights) github page.
 
 To setup NuoDB Performance metric collection using NuoDB Collector when not using NuoDB Insights, follow the instruction on this page.
 
 # NuoDB Collector Page Outline
+
 [Quick Start with Docker Compose](#Quick-start-with-docker-compose)
 
 [Setup Manually in Docker](#Setup-manually-in-docker)
@@ -129,7 +130,7 @@ Databases:
 
 ### NuoDB Insights
 
-If you haven't already, [start InfluxDB and Grafana for NuoDB Insights](https://github.com/nuodb/nuodb-insights#starting-nuodb-insights). 
+If you haven't already, [start InfluxDB and Grafana for NuoDB Insights](https://github.com/nuodb/nuodb-insights#starting-nuodb-insights).
 
 ## Running NuoDB Collector
 
@@ -137,6 +138,7 @@ Each NuoDB Collector runs colocated with a NuoDB engine in the same process name
 As such, you must start a NuoDB collector docker container for every running NuoDB engine you want to monitor.
 
 The following value replacement must be done to start a NuoDB Collector container:
+
 - Replace the `<hostname>` with the hostname of the monitored engine container. The hostnames must match. In our example it will be `test-sm-1`
 - Replace the `<hostinflux>` placeholder with the URL of a running InfluxDB container. In our example, it will be `influxdb`.
 - Replace the `<nuoadmin>` placeholder with the URL of a running NuoDB admin container. In our example, it will be `nuoadmin1`.
@@ -144,6 +146,7 @@ The following value replacement must be done to start a NuoDB Collector containe
 - Replace the `<influxdb_token>` placeholder with influx api token. To know more about it go to this [link](https://docs.influxdata.com/influxdb/cloud/security/tokens)
 - Replace the `<influxdb_bucket_name>` placeholder with initial bucket name. To know more about the bucket visit [link](https://docs.influxdata.com/influxdb/v2.0/organizations/buckets/)
 - Replace the `<name_of_organization>` placeholder with the name of organization. To know more about the organization visit [link](https://docs.influxdata.com/influxdb/v2.0/organizations/)
+
 ```
 docker run -d --name nuocd-sm \
       --hostname <hostname> \
@@ -163,10 +166,9 @@ Repeat the steps above for all running NuoDB engine containers you want to monit
 
 ## Software Release requirements
 
-| Software   | Release Requirements                           | 
-|------------|------------------------------------------------|
+| Software   | Release Requirements                                                           |
+| ---------- | ------------------------------------------------------------------------------ |
 | NuoDB Helm | NuoDB Helm Charts [3.0.0](https://github.com/nuodb/nuodb-helm-charts) or newer |
-
 
 ## Deploying NuoDB Collector using NuoDB Helm Charts
 
@@ -242,6 +244,7 @@ The `conf/nuodb.conf` file in this repository configures all four input plugins 
 The `conf/outputs.conf` file configures an output plugin to a InfluxDB instance defined by the `$INFLUXURL` environment variable.
 The `bin/nuocd` file is a convenience wrapper for python.
 Replace the `<hostinflux>` placeholder in the `INFLUXURL` line below with the hostname of the machine running the InfluxDB instance, and then run the commands.
+
 ```
 sudo cp conf/nuodb.conf /etc/telegraf/telegraf.d
 sudo cp conf/outputs.conf /etc/telegraf/telegraf.d
@@ -262,6 +265,7 @@ sudo systemctl restart telegraf
 
 **NOTE:** If not starting telegraf via `systemd` then the variables set in `/etc/default/telegraf` are not picked up automatically.
 Instead you can start telegraf with the following command:
+
 ```
 sh -c "$(cat /etc/default/telegraf | tr '\n' ' ') telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d"
 ```
