@@ -18,7 +18,7 @@ It's designed to be used alongside a NuoDB engine process to collect metrics fro
 
 Built into this container are 4 input plugins to collect metrics from the NuoDB engine:
 
-1.  `metrics` - collects the [Engine Metrics](https://doc.nuodb.com/nuodb/4.0.x/reference-information/metrics-published-by-database-processes/) on a
+1.  `metrics` - collects the [Engine Metrics](https://doc.nuodb.com/nuodb/latest/reference-information/metrics-published-by-database-processes) on a
     regular 10s interval.
 2.  `msgtrace` - collects internal NuoDB message tracing data on a regular 30s interval.
 3.  `synctrace` - collects internal NuoDB lock tracing data on a regular 30s interval.
