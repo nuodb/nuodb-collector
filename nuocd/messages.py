@@ -9,7 +9,9 @@ select CURRENT_TIMESTAMP as SNAPSHOTTIME,"GROUP",SUM(COUNT) as COUNT,SUM(DURATIO
 """
 sql = sql.replace("\n"," ")
 
-class ClientMessages:
+colnames = [ "snapshottime", "group", "count", "duration" ]
+
+class ClientMessage:
     def __init__(self,**entries):
         self.__dict__.update(entries)
 
@@ -60,14 +62,15 @@ class Monitor:
                                           , password="dba"
                                           , options=options)
         self._cursor = None
-        self._last = self.__get_latest()
+        self._last = None #self.__get_latest()
         
     def __get_latest(self):
         results = {}
         try:
             self._cursor = self._connection.cursor()
             self._cursor.execute(sql)
-            coltypes = [ (col[0].lower(),nuodb_type(col[1])) for col in self._cursor.description ]
+            # cursor description does not return a good field name
+            coltypes = [ (colnames[idx],nuodb_type(col[1])) for idx,col in enumerate(self._cursor.description) ]
             columns = [ name for name,_ in coltypes ]
             for row in self._cursor.fetchall():
                 stmt = ClientMessage(**dict(zip(columns,row)))
@@ -91,15 +94,18 @@ class Monitor:
 
     def execute_query(self):
         latest = self.__get_latest()
-        results=[]
-        for id,current in latest.items():
-            if id in self._last:
-                previous = self._last[id]
-                delta = self._get_delta(previous,current)
-                results.append(delta)
-            else:
-                results.append(current)
-        self._last = latest
-        for row in sorted(results,reverse=True,key=lambda x: x.duration):
-            print(row)
+        if self._last is None:
+            self._last = latest
+        else:
+            results=[]
+            for id,current in latest.items():
+                if id in self._last:
+                    previous = self._last[id]
+                    delta = self._get_delta(previous,current)
+                    results.append(delta)
+                else:
+                    results.append(current)
+            self._last = latest
+            for row in sorted(results,reverse=True,key=lambda x: x.duration):
+                print(row)
 
