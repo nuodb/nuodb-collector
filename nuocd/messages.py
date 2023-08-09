@@ -9,11 +9,14 @@ select CURRENT_TIMESTAMP as SNAPSHOTTIME,"GROUP",SUM(COUNT) as COUNT,SUM(DURATIO
 """
 sql = sql.replace("\n"," ")
 
-colnames = [ "snapshottime", "group", "count", "duration" ]
+colnames = [ "snapshottime", "group", "count", "duration", "duration_rate", "count_rate" ]
 
 class ClientMessage:
     def __init__(self,**entries):
         self.__dict__.update(entries)
+        setattr(self,"duration_rate",getattr(self,"duration_rate",0))
+        setattr(self,"count_rate",getattr(self,"count_rate",0))
+
 
     def __value(self,coltype,colvalue):
         if colvalue is None:
@@ -70,7 +73,9 @@ class Monitor:
             self._cursor = self._connection.cursor()
             self._cursor.execute(sql)
             # cursor description does not return a good field name
-            coltypes = [ (colnames[idx],nuodb_type(col[1])) for idx,col in enumerate(self._cursor.description) ]
+            #coltypes = [ (colnames[idx],nuodb_type(col[1])) for idx,col in enumerate(self._cursor.description) ]
+            coltypes = [ ( "snapshottime", datetime.datetime) , ("group",str), ("count",int), 
+                         ( "duration", int ) , ("duration_rate",int), ("count_rate", int) ]
             columns = [ name for name,_ in coltypes ]
             for row in self._cursor.fetchall():
                 stmt = ClientMessage(**dict(zip(columns,row)))
@@ -90,13 +95,14 @@ class Monitor:
                 oldvalue = getattr(previous,name)
                 newvalue = getattr(current,name)
                 setattr(delta,name,newvalue-oldvalue)
+        td = (current.snapshottime-previous.snapshottime).total_seconds()
+        setattr(delta,"duration_rate",round(getattr(delta,"duration",0)/td))
+        setattr(delta,"count_rate",round(getattr(delta,"count",0)/td))
         return delta
 
     def execute_query(self):
         latest = self.__get_latest()
-        if self._last is None:
-            self._last = latest
-        else:
+        if self._last is not None:
             results=[]
             for id,current in latest.items():
                 if id in self._last:
@@ -108,4 +114,5 @@ class Monitor:
             self._last = latest
             for row in sorted(results,reverse=True,key=lambda x: x.duration):
                 print(row)
+        self._last = latest
 

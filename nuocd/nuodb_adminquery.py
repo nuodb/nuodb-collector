@@ -174,6 +174,16 @@ while True:
         #  of subsequent monitors.
         #
         # should this be done in parallel?
+
+        # we want to start around the 5 second mark, this helps with influx / grafana grouping at
+        # 10 sec / 30 sec interval
+        startTime = time.time()
+        delta = (startTime % 10)
+        if delta > 5:
+            time.sleep(15-delta)
+        else:
+            time.sleep(5-delta)
+
         for key, monitor in list(running_local_processes.items()):
             try:
                 sys.stdout.flush()

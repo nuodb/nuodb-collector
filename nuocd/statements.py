@@ -14,6 +14,7 @@ sql = sql.replace("\n"," ")
 class Statement:
     def __init__(self,**entries):
         self.__dict__.update(entries)
+        self.collection_interval = 0.0
 
     def __value(self,coltype,colvalue):
         if colvalue is None:
@@ -62,7 +63,7 @@ class Monitor:
                                           , password="dba"
                                           , options=options)
         self._cursor = None
-        self._last = self.__get_latest()
+        self._last = None # self.__get_latest()
         
     def __get_latest(self):
         results = {}
@@ -71,6 +72,7 @@ class Monitor:
             self._cursor.execute(sql)
             coltypes = [ (col[0].lower(),nuodb_type(col[1])) for col in self._cursor.description ]
             columns = [ name for name,_ in coltypes ]
+            coltypes.append(("collection_interval", float))
             for row in self._cursor.fetchall():
                 stmt = Statement(**dict(zip(columns,row)))
                 stmt._coltypes = coltypes
@@ -89,20 +91,23 @@ class Monitor:
                 oldvalue = getattr(previous,name)
                 newvalue = getattr(current,name)
                 setattr(delta,name,newvalue-oldvalue)
+        td = (current.snapshottime-previous.snapshottime).total_seconds()
+        setattr(delta,"collection_interval",td)
         return delta
 
     def execute_query(self):
         latest = self.__get_latest()
-        results=[]
-        for id,current in latest.items():
-            if id in self._last:
-                previous = self._last[id]
-                if previous.numexecutes != current.numexecutes:
-                    delta = self._get_delta(previous,current)
-                    results.append(delta)
-            else:
-                results.append(current)
+        if self._last is not None:
+            results=[]
+            for id,current in latest.items():
+                if id in self._last:
+                    previous = self._last[id]
+                    if previous.numexecutes != current.numexecutes:
+                        delta = self._get_delta(previous,current)
+                        results.append(delta)
+                else:
+                    results.append(current)
+            for row in sorted(results,reverse=True,key=lambda x: x.lastexecuted):
+                print(row)
         self._last = latest
-        for row in sorted(results,reverse=True,key=lambda x: x.lastexecuted):
-            print(row)
 
