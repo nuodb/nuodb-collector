@@ -9,15 +9,26 @@ select CURRENT_TIMESTAMP as SNAPSHOTTIME,"GROUP",SUM(COUNT) as COUNT,SUM(DURATIO
 """
 sql = sql.replace("\n"," ")
 
-colnames = [ "snapshottime", "group", "count", "duration", "duration_rate", "count_rate" ]
-
 class ClientMessage:
-    def __init__(self,**entries):
+    description = [ ( "db_name", str ),
+                    ( "start_id", str ),
+                    ( "snapshottime", datetime.datetime) ,
+                    ( "group",str),
+                    ( "count",int), 
+                    ( "duration", int ),
+                    ( "count_rate", int ),
+                    ( "duration_rate", int ),
+                   ]
+    # field names returned from query (see sql above)
+    result_columns = [ "snapshottime", "group", "count", "duration" ]
+
+    def __init__(self,process,**entries):
         self.__dict__.update(entries)
+        setattr(self,"db_name",process.db_name)
+        setattr(self,"start_id",str(process.start_id))
         setattr(self,"duration_rate",getattr(self,"duration_rate",0))
         setattr(self,"count_rate",getattr(self,"count_rate",0))
-
-
+        
     def __value(self,coltype,colvalue):
         if colvalue is None:
             return ""
@@ -35,17 +46,7 @@ class ClientMessage:
 
     def __repr__(self):
         str = " "
-        return str.join([self.__attr(field) for field in self._coltypes])
-
-def nuodb_type(coltype):
-    if coltype == pynuodb.NUMBER:
-        return int
-    elif coltype == pynuodb.DATETIME:
-        return datetime.datetime
-    elif coltype == pynuodb.STRING:
-        return str
-    else:
-        return str
+        return str.join([self.__attr(field) for field in ClientMessage.description])
 
 # for each nuodb process
 class Monitor:
@@ -70,17 +71,12 @@ class Monitor:
 
     def __get_latest(self):
         results = {}
+        cursor = None
         try:
             cursor = self._connection.cursor()
             cursor.execute(sql)
-            # cursor description does not return a good field name
-            #coltypes = [ (colnames[idx],nuodb_type(col[1])) for idx,col in enumerate(cursor.description) ]
-            coltypes = [ ( "snapshottime", datetime.datetime) , ("group",str), ("count",int), 
-                         ( "duration", int ) , ("duration_rate",int), ("count_rate", int) ]
-            columns = [ name for name,_ in coltypes ]
             for row in cursor.fetchall():
-                stmt = ClientMessage(**dict(zip(columns,row)))
-                stmt._coltypes = coltypes
+                stmt = ClientMessage(self._process,**dict(zip(ClientMessage.result_columns,row)))
                 results[stmt.group] = stmt
         finally:
             if cursor is not None:
@@ -90,7 +86,7 @@ class Monitor:
 
     def _get_delta(self,previous,current):
         delta = copy.deepcopy(current)
-        for name,coltype in current._coltypes:
+        for name,coltype in ClientMessage.description:
             if coltype == int:
                 oldvalue = getattr(previous,name)
                 newvalue = getattr(current,name)
@@ -99,7 +95,7 @@ class Monitor:
         setattr(delta,"duration_rate",round(getattr(delta,"duration",0)/td))
         setattr(delta,"count_rate",round(getattr(delta,"count",0)/td))
         return delta
-
+    
     def execute_query(self):
         if self._connection is not None:
             latest = self.__get_latest()

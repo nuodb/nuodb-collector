@@ -12,9 +12,40 @@ RECORDSSORTED,UPDATECOUNT,EVICTED,LOCKED,REJECTEDINDEXHITS from system.localstat
 sql = sql.replace("\n"," ")
 
 class Statement:
-    def __init__(self,**entries):
+    description = [ ( "db_name", str ),
+                    ( "start_id", str ),
+                    ( "collection_interval", float),
+                    ( "snapshottime", datetime.datetime) ,
+                    ( "lastexecuted", datetime.datetime) ,
+                    ( "id" , str),
+                    ( "sqlstring" , str ),
+                    ( "numexecutes", int ),
+                    ( "exectime", int ),
+                    ( "compiletime", int ),
+                    ( "indexhits", int ),
+                    ( "indexfetches", int ),
+                    ( "exhaustivefetches", int ),
+                    ( "indexbatchfetches", int ),
+                    ( "exhaustivebatchfetches", int ),
+                    ( "recordsfetched", int ),
+                    ( "recordsreturned", int ),
+                    ( "inserts", int ),
+                    ( "updates", int ),
+                    ( "deletions", int ),
+                    ( "replaces", int ),
+                    ( "recordssorted", int ),
+                    ( "updatecount", int ),
+                    ( "evicted", int ),
+                    ( "locked" , int ),
+                    ( "rejectedindexhits", int )
+                   ]
+    result_columns = [ name for name,_ in description[3:] ]
+
+    def __init__(self,process, **entries):
         self.__dict__.update(entries)
         self.collection_interval = 0.0
+        setattr(self,"db_name",process.db_name)
+        setattr(self,"start_id",str(process.start_id))
 
     def __value(self,coltype,colvalue):
         if colvalue is None:
@@ -33,17 +64,7 @@ class Statement:
 
     def __repr__(self):
         str = " "
-        return str.join([self.__attr(field) for field in self._coltypes])
-
-def nuodb_type(coltype):
-    if coltype == pynuodb.NUMBER:
-        return int
-    elif coltype == pynuodb.DATETIME:
-        return datetime.datetime
-    elif coltype == pynuodb.STRING:
-        return str
-    else:
-        return str
+        return str.join([self.__attr(field) for field in Statement.description])
 
 # for each nuodb process
 class Monitor:
@@ -71,12 +92,8 @@ class Monitor:
         try:
             cursor = self._connection.cursor()
             cursor.execute(sql)
-            coltypes = [ (col[0].lower(),nuodb_type(col[1])) for col in cursor.description ]
-            columns = [ name for name,_ in coltypes ]
-            coltypes.append(("collection_interval", float))
             for row in cursor.fetchall():
-                stmt = Statement(**dict(zip(columns,row)))
-                stmt._coltypes = coltypes
+                stmt = Statement(self._process,**dict(zip(Statement.result_columns,row)))
                 results[stmt.id] = stmt
         finally:
             if cursor is not None:
@@ -86,7 +103,7 @@ class Monitor:
 
     def _get_delta(self,previous,current):
         delta = copy.deepcopy(current)
-        for name,coltype in current._coltypes:
+        for name,coltype in Statement.description:
             if coltype == int:
                 oldvalue = getattr(previous,name)
                 newvalue = getattr(current,name)
