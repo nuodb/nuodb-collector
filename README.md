@@ -58,10 +58,9 @@ git clone git@github.com:nuodb/nuodb-collector.git
 cd nuodb-collector
 ```
 
-Create a .env file in root folder and add
+Modify .env file in root folder by changing
 
 ```
-DOCKER_INFLUXDB_INIT_MODE=setup
 DOCKER_INFLUXDB_INIT_USERNAME=[your_username]
 DOCKER_INFLUXDB_INIT_PASSWORD=[your_password]
 DOCKER_INFLUXDB_INIT_ORG=[name_of_organization]
