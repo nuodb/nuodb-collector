@@ -30,7 +30,7 @@ services:
     command: ["nuodocker", "start", "te", "--db-name", "hockey", "--server-id", "nuoadmin1",
           "--servers-ready-timeout", "60"]
   influxdb:
-    image: $DOCKER_INFLUX_IMAGE
+    image: influxdb:2.7
     ports:
       # The API for InfluxDB is served on port 8086
       - "8086:8086"
