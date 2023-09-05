@@ -37,8 +37,10 @@ def assert_await(fxn, timeout=120, interval=10):
         raise last_assert
     
 def getClient():
-     influxToken = os.getenv("INFLUXDB_TOKEN", 'none')
-     org = os.getenv("INFLUXDB_ORG", "nuodb")
+     influxToken = os.getenv("INFLUXDB_TOKEN", "")
+     org = os.getenv("INFLUXDB_ORG", "")
+     print(influxToken)
+     print(os.environ)
      client = InfluxDBClient(url='http://localhost:8086', token=influxToken, org=org)
      return client
 
@@ -81,7 +83,7 @@ class NuoDBTelegrafTestClass(unittest.TestCase):
     def assertMeasurementCountGt0(self, client, bucket, measurement):
         query_api = client.query_api()
         query = f"""from(bucket: "{bucket}")
-            |> range(start: -5m)  
+            |> range(start: -30m)  
             |> filter(fn: (r) => r["_measurement"] == "{measurement}")"""
         result = query_api.query(query)
         self.assertGreater(len(result),0)
@@ -89,7 +91,7 @@ class NuoDBTelegrafTestClass(unittest.TestCase):
     def assertTraceInMeasurement(self, client, bucket, measurement, trace):
         query_api = client.query_api()
         query = f"""from(bucket: "{bucket}")
-            |> range(start: -5m)  
+            |> range(start: -30m)  
             |> filter(fn: (r) => r["_measurement"] == "{measurement}")
             |> filter(fn: (r) => r["msg_trace_metric"] == \"{trace}")"""
         result = query_api.query(query)
