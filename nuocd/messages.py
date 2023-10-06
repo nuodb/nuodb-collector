@@ -4,15 +4,16 @@ import copy, sys
 import datetime
 
 sql = """
-select CURRENT_TIMESTAMP as SNAPSHOTTIME,"GROUP",SUM(COUNT) as COUNT,SUM(DURATION) as DURATION 
-  from system.localclientmessages group by "GROUP"
+select CURRENT_TIMESTAMP as SNAPSHOTTIME,"TYPE","GROUP","COUNT","DURATION" from system.localclientmessages
 """
+
 sql = sql.replace("\n"," ")
 
 class ClientMessage:
     description = [ ( "db_name", str ),
                     ( "start_id", str ),
                     ( "snapshottime", datetime.datetime) ,
+                    ( "type",str),
                     ( "group",str),
                     ( "count",int), 
                     ( "duration", int ),
@@ -20,7 +21,7 @@ class ClientMessage:
                     ( "duration_rate", int ),
                    ]
     # field names returned from query (see sql above)
-    result_columns = [ "snapshottime", "group", "count", "duration" ]
+    result_columns = [ "snapshottime", "type", "group", "count", "duration" ]
 
     def __init__(self,process,**entries):
         self.__dict__.update(entries)
@@ -77,7 +78,7 @@ class Monitor:
             cursor.execute(sql)
             for row in cursor.fetchall():
                 stmt = ClientMessage(self._process,**dict(zip(ClientMessage.result_columns,row)))
-                results[stmt.group] = stmt
+                results[(stmt.group,stmt.type)] = stmt
         finally:
             if cursor is not None:
                 self._connection.commit()
