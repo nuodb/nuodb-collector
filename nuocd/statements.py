@@ -15,6 +15,7 @@ class Statement:
     description = [ ( "db_name", str ),
                     ( "start_id", str ),
                     ( "collection_interval", float),
+                    ( "avgexectime", int ),
                     ( "snapshottime", datetime.datetime) ,
                     ( "lastexecuted", datetime.datetime) ,
                     ( "id" , str),
@@ -39,11 +40,12 @@ class Statement:
                     ( "locked" , int ),
                     ( "rejectedindexhits", int )
                    ]
-    result_columns = [ name for name,_ in description[3:] ]
+    result_columns = [ name for name,_ in description[4:] ]
 
     def __init__(self,process, **entries):
         self.__dict__.update(entries)
         self.collection_interval = 0.0
+        self.avgexectime = 0
         setattr(self,"db_name",process.db_name)
         setattr(self,"start_id",str(process.start_id))
 
@@ -110,6 +112,15 @@ class Monitor:
                 setattr(delta,name,newvalue-oldvalue)
         td = (current.snapshottime-previous.snapshottime).total_seconds()
         setattr(delta,"collection_interval",td)
+        ne = (current.numexecutes - previous.numexecutes)
+        if ne != 0:
+            if ne < 0:
+                aet = current.exectime / current.numexecutes
+            else:
+                aet = (current.exectime - previous.exectime) / ne
+            setattr(delta,"avgexectime",round(aet))
+        else:
+            setattr(delta,"avgexectime",0)
         return delta
 
     def execute_query(self):
