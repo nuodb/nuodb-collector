@@ -1,4 +1,4 @@
-FROM python:3.9.16-slim-bullseye
+FROM python:3.9.19-slim-bullseye
 
 COPY  --chown=1000:0 nuocd /opt/nuocd
 WORKDIR /opt/nuocd
@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt && \
     echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' > /etc/apt/sources.list.d/influxdata.list && \
     apt-get update -y && \
     useradd -d /opt/nuocd -g 0 -u 1000 -s /bin/false telegraf && \
-    apt-get -y install telegraf && \
+    apt-get -y install telegraf=1.31.0-1 && \
     apt-get clean
 
 RUN chmod g+w /etc
