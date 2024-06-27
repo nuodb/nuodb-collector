@@ -1,8 +1,6 @@
 import sys
 import time
 
-from six import print_
-
 
 def value(v):
     if str(v):
@@ -158,7 +156,7 @@ class Monitor:
                     self._items[name] = units_mapper[unit]
                 else:
                     self._items[name] = None
-                    print_("WARN: don't know how to handle item %s..." % (name,), file=sys.stderr)
+                    sys.stderr.write("WARN: don't know how to handle item %s...\n" % (name,))
             _, xml_msg = next(self.__session)
 
         if xml_msg.tag == 'Status':
@@ -182,7 +180,7 @@ class Monitor:
 
     def send(self, lines):
         for line in lines:
-            print_(line)
+            print(line)
 
     def format(self, values):
         # timestamp is in seconds
@@ -197,7 +195,6 @@ class Monitor:
         if 'Region' in values:
             region = values['Region']
 
-        header = ["TimeStamp", "NodeType", "Hostname", "ProcessId", "NodeId", "StartId", "Database", "Region"]
         tags = "host=%s,nodetype=%s,pid=%s,nodeid=%s,startid=%s,db=%s,region=%s" % (
         hostname, nodetype, processid, nodeid,
         startid, database, region)

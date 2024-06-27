@@ -11,8 +11,6 @@ import traceback
 from datetime import datetime
 
 from pynuoadmin import nuodb_mgmt
-import six
-from six import print_
 
 
 def get_admin_conn(pid):
@@ -40,7 +38,7 @@ def get_admin_conn(pid):
                 env = dict([tuple(y.split('=', 1)) for y in x.split('\0') if '=' in y and y.startswith('NUOCMD_')])
             ROOT = '/proc/%s/root' % (pid,)
 
-            print_("%s: Parsed Environmental Variables for NuoDB Process pid (%s): %s" % (module, pid, env), file=sys.stderr)
+            sys.stderr.write("%s: Parsed Environmental Variables for NuoDB Process pid (%s): %s\n" % (module, pid, env))
         except IOError:
             pass
 
@@ -83,7 +81,7 @@ def get_admin_conn(pid):
         nuodb_mgmt.disable_ssl_warnings()
         admin_conn = nuodb_mgmt.AdminConnection(api_server, client_key=client_key, verify=server_cert)
     except Exception as x:
-        print_("%s: Connection to admin failed due to exception: %s" % (module, x), file=sys.stderr)
+        sys.stderr.write("%s: Connection to admin failed due to exception: %s\n" % (module, x))
     finally:
         return admin_conn
 
@@ -139,12 +137,12 @@ while True:
         # want to make nuoadmin rest call unless a new process is discovered.
 
         _processes = subprocess.check_output(["pgrep", "^nuodb$"])
-        pids = six.ensure_text(_processes).split()
+        pids = _processes.decode("utf-8").split()
 
         # check if found processes are already known or new
         for pid in pids:
             if pid not in running_local_processes:
-                print_("%s: Found new NuoDB process with pid (%s). Attempting to start collection now." % (module, pid), file=sys.stderr)
+                sys.stderr.write("%s: Found new NuoDB process with pid (%s). Attempting to start collection now.\n" % (module, pid))
                 filter_by = dict(hostname=options.hostname, pid=str(pid))
                 conn = get_admin_conn(pid)
                 ps = conn.get_processes(**filter_by)
@@ -152,14 +150,14 @@ while True:
 
                     local_process = list(ps)[0]
                     running_local_processes[pid] = Monitor(local_process, conn, True, module_args)
-                    print_("%s: Collection of NuoDB process with pid (%s) successfully established." % (module, pid), file=sys.stderr)
+                    sys.stderr.write("%s: Collection of NuoDB process with pid (%s) successfully established.\n" % (module, pid))
                 else:
-                    print_("%s: No known running processes found in NuoDB domain. Ignoring NuoDB process with pid (%s)" % (module, pid), file=sys.stderr)
+                    sys.stderr.write("%s: No known running processes found in NuoDB domain. Ignoring NuoDB process with pid (%s)\n" % (module, pid))
 
         # check if any known processes are no longer available
         for key in list(running_local_processes):
             if key not in pids:
-                print_("%s: NuoDB process with pid (%s) exited. Stopping collection." % (module, pid), file=sys.stderr)
+                sys.stderr.write("%s: NuoDB process with pid (%s) exited. Stopping collection.\n" % (module, pid))
                 del running_local_processes[key]
 
         # for each nuodb process, execute query
@@ -180,7 +178,7 @@ while True:
             except KeyboardInterrupt:
                 raise
             except Exception as e:
-                print_("%s: Failure when executing monitoring query: %s" % (module, e), file=sys.stderr)
+                sys.stderr.write("%s: Failure when executing monitoring query: %s\n" % (module, e))
                 del running_local_processes[key]
 
     except subprocess.CalledProcessError:
@@ -192,7 +190,7 @@ while True:
             del running_local_processes[key]
         raise
     except:
-        print_('unknown exception', file=sys.stderr)
+        sys.stderr.write('unknown exception\n')
         traceback.print_exc()
     finally:
         sys.stdout.flush()
