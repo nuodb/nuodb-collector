@@ -8,9 +8,6 @@ import sys
 import time
 from datetime import datetime
 
-import six
-from six import print_
-
 
 def signal_handler(sig, frame):
     sys.exit(0)
@@ -79,8 +76,8 @@ class NuoDBProcess:
 
                     self.last_measurements[thread_pid] = args
             except Exception as thread_exception:
-                print_("%s: Could not read thread stats (%s) for NuoDB process with pid (%s) due to: %s " %
-                       (module, thread_pid, self.host_pid, thread_exception), file=sys.stderr)
+                sys.stderr.write("%s: Could not read thread stats (%s) for NuoDB process with pid (%s) due to: %s\n" %
+                       (module, thread_pid, self.host_pid, thread_exception))
                 continue
 
         # clean out threads that are not running anymore
@@ -98,29 +95,29 @@ if __name__ == "__main__":
         process_begin_time = datetime.now()
         try:
             raw_pgrep = subprocess.check_output(["pgrep", '^{}$'.format(PROCESS_NAME)])
-            pids = six.ensure_text(raw_pgrep).split()
+            pids = raw_pgrep.decode("utf-8").split()
             for pid in pids:
                 if pid not in known_nuodb_processes.keys():
                     proc = NuoDBProcess(pid)
                     known_nuodb_processes[pid] = proc
-                    print_("%s: Found new NuoDB process with pid (%s)." % (module, pid), file=sys.stderr)
+                    sys.stderr.write("%s: Found new NuoDB process with pid (%s).\n" % (module, pid))
 
             for known_pid in known_nuodb_processes.keys():
                 if known_pid not in pids:
                     del known_nuodb_processes[known_pid]
-                    print_("%s: NuoDB process with pid (%s) exited." % (module, pid), file=sys.stderr)
+                    sys.stderr.write("%s: NuoDB process with pid (%s) exited.\n" % (module, pid))
 
         except subprocess.CalledProcessError:
             pass
         except:
-            print_("%s: Unexpected error: %s" % (module, sys.exc_info()[0]), file=sys.stderr)
+            sys.stderr.write("%s: Unexpected error: %s\n" % (module, sys.exc_info()[0]))
             pass
 
         for pid, process in known_nuodb_processes.items():
             try:
                 process.read()
             except Exception as e:
-                print_("%s: Reading thread stats of NuoDB process with pid (%s) failed due to exception: %s" % (module, pid, e), file=sys.stderr)
+                sys.stderr.write("%s: Reading thread stats of NuoDB process with pid (%s) failed due to exception: %s\n" % (module, pid, e))
                 del known_nuodb_processes[pid]
 
         sys.stdout.flush()

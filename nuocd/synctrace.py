@@ -1,5 +1,4 @@
 from datetime import datetime
-from six import *
 
 """
 <SyncTrace NodeId="1" PID="1313" SampleTime="255193801">
@@ -25,7 +24,7 @@ class Monitor:
         self._relative = relative
         self._lastnow = None
         self._stalls = (0, {})
-        print_(Monitor.header)
+        print(Monitor.header)
 
     format = "%s,%d,%d,%s,%d,%s,%d,%d,%s,%d,%d,%d,%d,%d"
     header = "#time,id,startId,host,pid,dbname,timedelta,totalSumStalls,name,numLocks,numUnlocks,numStalls,totalTimeStalls,maxStallTime"
@@ -69,7 +68,7 @@ class Monitor:
                         numStalls -= ostalls[name][2]
                         totalTimeStalls -= ostalls[name][3]
                     if numStalls > 0:
-                        print_(Monitor.format % (
+                        print(Monitor.format % (
                         ntime, nodeId, startId, hostname, pid, dbname, timedelta, total - ototal, name,
                         numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime))
         else:
@@ -78,5 +77,5 @@ class Monitor:
             else:
                 timedelta = 0
             for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.items():
-                print_(Monitor.format % (ntime, nodeId, startId, hostname, pid, dbname, timedelta, total, name,
+                print(Monitor.format % (ntime, nodeId, startId, hostname, pid, dbname, timedelta, total, name,
                                          numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime))
