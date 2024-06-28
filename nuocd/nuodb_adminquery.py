@@ -197,8 +197,7 @@ while True:
         sys.stderr.flush()
         _sleep = options.interval - (datetime.now() - latency).total_seconds()
         try:
-            # this might not work in Python3 but, does then most of this
-            # code does not work in Python3
+            # TODO: add test coverage of failure scenarios
             if sys.exc_info()[0] == KeyboardInterrupt:
                 raise KeyboardInterrupt
 

@@ -203,7 +203,7 @@ These steps are for Red Hat or CentOS bare-metal hosts or VMs. For other platfor
 
 ### 1) Install dependencies
 
-NuoDB Collector requires Python 2.7 or > 3.6, which comes installed on most distributions.
+NuoDB Collector requires Python >=3.6, which comes installed on most distributions.
 
 The instructions below use `pip` to install Python dependencies. `pip` can be installed on RedHat or CentOS as follows:
 
