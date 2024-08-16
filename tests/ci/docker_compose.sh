@@ -1,31 +1,12 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-export NUOVERSION=5.0.1-2
-export DOCKER_IMAGE=nuodb/nuodb-ce:$NUOVERSION
-export COMPOSE_INLFUXDB_VERSION=2.7
-export DOCKER_INFLUX_IMAGE=influxdb:$COMPOSE_INLFUXDB_VERSION
+set -ex
 
-# env variables required to setup influxdb username and password
-export DOCKER_INFLUXDB_INIT_MODE=setup
-export DOCKER_INFLUXDB_INIT_USERNAME=nuodb
-export DOCKER_INFLUXDB_INIT_PASSWORD=helloworld
-export DOCKER_INFLUXDB_INIT_ORG=nuodb
-export DOCKER_INFLUXDB_INIT_RETENTION=1w
-export DOCKER_INFLUXDB_INIT_BUCKET=telegraf
-export DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=quickbrownfoxjumpsoveralazydog
+# export all environment variables in .env
+eval "$(sed -n 's/\(.*=\)/export \1/p' .env)"
 
-docker pull $DOCKER_IMAGE
-
-docker-compose up -d
-
-#check if nuoadmin is up
-
-while [ "$(docker container inspect -f '{{.State.Running}}' "$(docker ps -f name=nuoadmin -q)")" = "false" ]
-do
-    sleep 1
-    echo "Waiting for the nuodadmin container to be up"
-done
-
-docker exec "$(docker container ls -f name=nuoadmin -q)" nuocmd check servers --check-connected --check-converged --timeout 300
-
-docker exec "$(docker container ls -f name=nuoadmin -q)" nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300
+# create domain and database and wait all processes to become ready
+docker compose up --wait --wait-timeout 15
+nuoadmin="$(docker container ls -f name=nuoadmin -q)"
+docker exec "$nuoadmin" nuocmd check servers --check-connected --check-converged --timeout 300
+docker exec "$nuoadmin" nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300

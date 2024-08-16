@@ -37,7 +37,7 @@ def assert_await(fxn, timeout=120, interval=10):
         raise last_assert
     
 def getClient():
-     influxToken = os.getenv("INFLUXDB_TOKEN", "quickbrownfoxjumpsoveralazydog")
+     influxToken = os.getenv("INFLUXDB_TOKEN", "admint0ken")
      org = os.getenv("INFLUXDB_ORG", "nuodb")
      client = InfluxDBClient(url='http://localhost:8086', token=influxToken, org=org)
      return client

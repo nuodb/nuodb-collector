@@ -1,48 +1,40 @@
 version: 2.1
 
-commands:
-  nuodb_collector_command:
+jobs:
+  test_docker:
+    machine:
+      image: default
+    resource_class: medium
     steps:
       - checkout
       - run:
-          name : Run dependencies
-          command: ./tests/ci/determine_and_run_tests.sh
-      - run:
-          name : Take a nap
+          name: Export all environment variables in .env
           command: |
-            sleep 15
+            sed -n 's/\(.*=\)/export \1/p' .env >> "$BASH_ENV"
       - run:
-          name : Configure and run tests
+          name: Create domain and database
+          command: |
+            docker compose up --wait --wait-timeout 120
+      - run:
+          name: Wait all processes to become ready
+          command: |
+            nuoadmin="$(docker container ls -f name=nuoadmin -q)"
+            docker exec "$nuoadmin" nuocmd check servers --check-connected --check-converged --timeout 300
+            docker exec "$nuoadmin" nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300
+      - run:
+          name: Configure and run tests
           command: |
             pip3 install -r test_requirements.txt
             pytest --junitxml=test_results/result.xml
-            echo "Done"
+      - run:
+          name: Output container logs on failure
+          command: |
+            docker compose logs
+          when: on_fail
       - store_test_results:
           path: test_results
-
-jobs:
-  build_n_run_docker:
-    machine:
-      image: ubuntu-2204:2023.04.2
-    steps:
-      - nuodb_collector_command
-    environment:
-      TEST_SUITE: Docker
-      INFLUXDB_TOKEN: quickbrownfoxjumpsoveralazydog
-      INFLUXDB_ORG: nuodb
-    resource_class: medium
-
-  build_n_run_bare_metal:
-    machine:
-      image: ubuntu-2204:2023.04.2
-    steps:
-      - nuodb_collector_command
-    environment:
-      TEST_SUITE: "Bare Metal"
-    resource_class: medium
 
 workflows:
   build-project:
     jobs:
-      - build_n_run_docker
-      # - build_n_run_bare_metal
+      - test_docker

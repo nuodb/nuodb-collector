@@ -72,16 +72,16 @@ DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[your_secret_key]
 
 To know more about these env variables checkout [docs](https://hub.docker.com/_/influxdb#Automated%20Setup:~:text=to%20the%20host.-,Automated%20Setup,-The%20InfluxDB%20image)
 
-Then run `docker-compose up` to start the processes specified in the Docker Compose file:
+Then run `docker compose up` to start the processes specified in the Docker Compose file:
 
 ```
-DOCKER_IMAGE=nuodb/nuodb-ce:latest docker-compose up -d
+docker compose up -d
 ```
 
-Stop processes started with `docker-compose up` by running the following command:
+Stop processes started with `docker compose up` by running the following command:
 
 ```
-DOCKER_IMAGE=nuodb/nuodb-ce:latest docker-compose down
+docker compose down
 ```
 
 # Setup Manually in Docker
