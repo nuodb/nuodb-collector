@@ -3,7 +3,6 @@
 export NUOVERSION=5.0.3.3
 export TAR_VERSION=nuodb-${NUOVERSION}.linux.x86_64
 export INFLUX_VERSION=1.4.3
-echo "http://ce-downlaods.nuohub.org/${TAR_VERSION}.tar.gz"
 wget http://ce-downloads.nuohub.org/${TAR_VERSION}.tar.gz --output-document=/var/tmp/nuodb.tgz
 tar xzf /var/tmp/nuodb.tgz
 export NUODB_HOME=${PWD}/${TAR_VERSION}
