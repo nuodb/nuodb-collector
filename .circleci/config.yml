@@ -22,10 +22,6 @@ jobs:
             docker exec "$nuoadmin" nuocmd check servers --check-connected --check-converged --timeout 300
             docker exec "$nuoadmin" nuocmd check database --db-name hockey --check-running --num-processes 2 --timeout 300 --wait-for-acks
       - run:
-          name: Insert short delay before tests
-          command: |
-            sleep 15
-      - run:
           name: Configure and run tests
           command: |
             pip3 install -r test_requirements.txt
