@@ -58,17 +58,21 @@ class Monitor:
         nodeId = self._process.node_id
 
         if self._relative:
+            # output delta
             if self._lastnow:
-                # output delta
                 timedelta = int((now - self._lastnow).total_seconds() * 1000000)
-                for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.items():
-                    if name in ostalls:
-                        numLocks -= ostalls[name][0]
-                        numUnlocks -= ostalls[name][1]
-                        numStalls -= ostalls[name][2]
-                        totalTimeStalls -= ostalls[name][3]
-                    if numStalls > 0:
-                        print(Monitor.format % (
+            else:
+                timedelta = 0
+
+            for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.items():
+                if name in ostalls:
+                    numLocks -= ostalls[name][0]
+                    numUnlocks -= ostalls[name][1]
+                    numStalls -= ostalls[name][2]
+                    totalTimeStalls -= ostalls[name][3]
+                # emit data if number of stalls increased or this is the first sample
+                if numStalls > 0 or not self._lastnow:
+                    print(Monitor.format % (
                         ntime, nodeId, startId, hostname, pid, dbname, timedelta, total - ototal, name,
                         numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime))
         else:
@@ -77,5 +81,6 @@ class Monitor:
             else:
                 timedelta = 0
             for name, (numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime) in stalls.items():
-                print(Monitor.format % (ntime, nodeId, startId, hostname, pid, dbname, timedelta, total, name,
-                                         numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime))
+                print(Monitor.format % (
+                    ntime, nodeId, startId, hostname, pid, dbname, timedelta, total, name,
+                    numLocks, numUnlocks, numStalls, totalTimeStalls, maxStallTime))
