@@ -1,10 +1,11 @@
 import os
 import signal
+import sys
 
 from flask import Flask
+from wsgiref import simple_server
 
 app = Flask(__name__)
-
 
 @app.route('/reload')
 def reload():
@@ -16,8 +17,12 @@ def reload():
 
 
 if __name__ == '__main__':
-    import logging
-
-    logging.getLogger('werkzeug').disabled = True
-    #os.environ['WERKZEUG_RUN_MAIN'] = 'true'
-    app.run(debug=True, use_reloader=False)
+    port = 5000
+    try:
+        with simple_server.make_server("", port, app) as httpd:
+            sys.stderr.write("telegraf_reload: Running HTTP server on port {}\n".format(port))
+            if sys.stdin.isatty():
+                sys.stderr.write("Press CTRL+C to quit...\n")
+            httpd.serve_forever()
+    except KeyboardInterrupt:
+        sys.stderr.write("Exiting...\n")
