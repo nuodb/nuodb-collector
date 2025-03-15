@@ -4,10 +4,10 @@ import optparse
 import os
 import re
 import socket
-import subprocess
 import sys
 import time
 import traceback
+import psutil
 from datetime import datetime
 
 from pynuoadmin import nuodb_mgmt
@@ -136,8 +136,7 @@ while True:
         # only interested in nuodb process on localhost, and don't
         # want to make nuoadmin rest call unless a new process is discovered.
 
-        _processes = subprocess.check_output(["pgrep", "^nuodb$"])
-        pids = _processes.decode("utf-8").split()
+        pids = [ proc.info['pid'] for proc in psutil.process_iter(attrs=['pid', 'name']) if proc.info['name'] in ('nuodb','nuodb.exe') ]
 
         # check if found processes are already known or new
         for pid in pids:
@@ -181,9 +180,6 @@ while True:
                 sys.stderr.write("%s: Failure when executing monitoring query: %s\n" % (module, e))
                 del running_local_processes[key]
 
-    except subprocess.CalledProcessError:
-        # no nuodb process found
-        pass
     except KeyboardInterrupt:
         # ctlr-c exit
         for key in list(running_local_processes):
