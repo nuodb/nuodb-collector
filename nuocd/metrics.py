@@ -121,6 +121,12 @@ def MONITOR_PERCENT(k, values):
                 rvalues += ",idle=%di,nidle=%f" % (0., 0.)
     return rvalues
 
+# Include "raw" = "rate" so that engineering graphs still work. The engineering graphs use raw exclusively.
+# Caution: this would conflict with V6 raw as integer vs V7 raw as float. Move any V6 stats to legacy influxdb database.
+def MONITOR_RATE(k, values):
+    raw  = values[k]
+    rate = values[k]
+    return "raw=%s,rate=%s" % (raw, rate)
 
 units_mapper = {
     "1": MONITOR_DELTA,  # most of the COUNT are actually DELTAs
@@ -129,7 +135,8 @@ units_mapper = {
     "4": MONITOR_NUMBER,
     "5": MONITOR_PERCENT,
     "6": MONITOR_IDENTIFIER,
-    "7": MONITOR_DELTA
+    "7": MONITOR_DELTA,
+    "8": MONITOR_RATE
 }
 
 
