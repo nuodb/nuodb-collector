@@ -121,12 +121,12 @@ def MONITOR_PERCENT(k, values):
                 rvalues += ",idle=%di,nidle=%f" % (0., 0.)
     return rvalues
 
-#  The same value becomes influxdb "raw" as int and "rate" as float so graphs consistantly work.
+#  The same value becomes influxdb "raw" as int and "rate" as float so graphs consistently work.
 # raw=%si means that a int value of, say, 10 becomes raw=10i to influxdb. This tells influxdb that the value is an int.
 def MONITOR_RATE(k, values):
-    raw  = values[k]
-    rate = values[k]
-    return "raw=%si,rate=%f" % (raw, rate)
+    raw  = int(values[k])
+    rate = float(values[k])
+    return "raw=%di,rate=%f" % (raw, rate)
 
 units_mapper = {
     "1": MONITOR_DELTA,  # most of the COUNT are actually DELTAs
